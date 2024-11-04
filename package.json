@@ -1,12 +1,12 @@
 {
   "name": "backend-fastcash",
   "version": "1.0.0",
-  "main": "api/index.js",
+  "main": "server.js",
   "type": "module",
 
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node api/index.js"
+    "server": "node server.js"
   },
   "author": "",
   "license": "ISC",
