@@ -1,4 +1,4 @@
-import User from '../models/AccessCollection.js';
+import User from '../models/AuthCollection.js';
 
 // Crear un nuevo usuario
 export const createUser = async (req, res) => {
@@ -15,6 +15,7 @@ export const createUser = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
+    console.log(users)
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });

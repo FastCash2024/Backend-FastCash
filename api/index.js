@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import DataCollection from './models/DataCollection.js';
-
+import authRoutes from './routes/auth.js';
 dotenv.config();
 
 const app = express();
@@ -73,6 +73,12 @@ app.delete('/api/data/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// Routes
+app.use('/api/auth', authRoutes);
+
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
