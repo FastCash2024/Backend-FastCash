@@ -1,4 +1,5 @@
 import User from '../models/AuthCollection.js';
+import UserPersonal from '../models/AuthPersonalAccountCollection.js';
 
 // Crear un nuevo usuario
 export const createUser = async (req, res) => {
@@ -21,7 +22,15 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+export const getAllPersonalAccounts = async (req, res) => {
+  try {
+    const users = await UserPersonal.find();
+    console.log(users)
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 // Obtener un usuario por ID
 export const getUserById = async (req, res) => {
   try {
