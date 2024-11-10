@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
   },
   apodo: {
     type: String,
-    required: true,
     minlength: 3
   },
   cuenta: {
@@ -29,7 +28,6 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
     unique: true,
     trim: true,
     lowercase: true

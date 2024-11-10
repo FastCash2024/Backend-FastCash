@@ -241,6 +241,66 @@ export const loginVerificacion = async (req, res) => {
 
 
 
+// Editar usuario (incluye cambio de contraseña)
+export const updateUser = async (req, res) => {
+    try {
+        const { userId } = req.params; // Obtener el id del usuario de la URL
+        const {
+            origenDeLaCuenta,
+            tipoDeGrupo,
+            codificacionDeRoles,
+            apodo,
+            cuenta,
+            email,
+            situacionLaboral,
+            password // Nuevo password
+        } = req.body;
+
+        // Verificar si el usuario existe
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Si se pasa una nueva contraseña, encriptarla
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
+
+        // Actualizar los demás campos del usuario
+        user.origenDeLaCuenta = origenDeLaCuenta || user.origenDeLaCuenta;
+        user.tipoDeGrupo = tipoDeGrupo || user.tipoDeGrupo;
+        user.codificacionDeRoles = codificacionDeRoles || user.codificacionDeRoles;
+        user.apodo = apodo || user.apodo;
+        user.cuenta = cuenta || user.cuenta;
+        user.email = email || user.email;
+        user.situacionLaboral = situacionLaboral || user.situacionLaboral;
+
+        // Guardar los cambios en la base de datos
+        await user.save();
+
+        // Responder con los datos actualizados del usuario
+        res.json({
+            message: 'Usuario actualizado con éxito',
+            user: {
+                id: user._id,
+                origenDeLaCuenta: user.origenDeLaCuenta,
+                tipoDeGrupo: user.tipoDeGrupo,
+                codificacionDeRoles: user.codificacionDeRoles,
+                apodo: user.apodo,
+                cuenta: user.cuenta,
+                email: user.email,
+                situacionLaboral: user.situacionLaboral,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+
+
 
 
 

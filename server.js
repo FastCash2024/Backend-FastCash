@@ -8,7 +8,7 @@ import verificationRoutes from './api/routes/verificationRoutes.js';
 import accessRoutes from './api/routes/accessRoutes.js';
 import authRoutes from './api/routes/auth.js';
 import emailRoutes from './api/routes/emailRoutes.js';
-
+import counterRoutes from './api/routes/counterRoutes.js';
 import { errorHandler } from './api/middleware/errorHandler.js';
 
 dotenv.config();
@@ -27,6 +27,8 @@ app.use('/api/verification', verificationRoutes);
 app.use('/api/users', accessRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/counter', counterRoutes);
+
 // Middleware de manejo de errores
 app.use(errorHandler);
 
