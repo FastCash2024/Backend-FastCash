@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
   },
   apodo: {
     type: String,
-    minlength: 3
   },
   cuenta: {
     type: String,
@@ -31,6 +30,9 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true
+  },
+  cuentaPersonal:{
+    type: String,
   },
   password: {
     type: String,

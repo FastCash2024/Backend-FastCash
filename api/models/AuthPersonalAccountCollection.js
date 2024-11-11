@@ -16,7 +16,10 @@ const userSchema = new mongoose.Schema({
   },
   codificacionDeRoles: {
     type: String,
-    required: true,
+    minlength: 3
+  },
+  rolAsignado: {
+    type: String,
     minlength: 3
   },
   nombreCompleto: {
@@ -26,6 +29,12 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   telefono: {
+    type: String,
+  },
+  cuenta: {
+    type: String,
+  },
+  apodo: {
     type: String,
   },
 

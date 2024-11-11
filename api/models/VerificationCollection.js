@@ -15,7 +15,11 @@ const verificationCollectionSchema = new mongoose.Schema({
     fechaDeCreacionDeLaTarea: String,
     fechaDeTramitacionDelCaso: String,
     nombreDeLaEmpresa: String,
-    apodoDeUsuarioDeCobro: String
+    apodoDeUsuarioDeCobro: String,
+    asesorVerificador: String,
+    emaiVerificador: String,
+    acotacionVerificador: String
+
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'
