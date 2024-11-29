@@ -26,17 +26,6 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  email: {
-    type: String,
-    unique: true,
-    trim: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 8
-  },
 
   refUnoNombres:{
     type: String,
@@ -61,12 +50,33 @@ const userSchema = new mongoose.Schema({
   imgFrontalCedula:{
     type: String,
   },
+  imgReversoCedula:{
+    type: String,
+  },
   numeroDeCedula:{
     type: String,
   },
   fotografia: {
     type: String,
   },
+
+
+  metodoParaRecibirElPrestamo: {
+    type: String,
+  },
+  nombreDelBanco: {
+    type: String,
+  },
+  tipoDeCuenta: {
+    type: String,
+  },
+  cuentaBancaria: {
+    type: String,
+  },
+  numeroDeDocumentoDeIdentidad: {
+    type: String,
+  },
+
 
   codificacionDeRoles: {
     type: String,

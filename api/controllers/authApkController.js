@@ -17,10 +17,7 @@ export const signin = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Encriptar la contraseña
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
+    
         // Crear usuario
         const user = new UserApk({
             ...req.body
