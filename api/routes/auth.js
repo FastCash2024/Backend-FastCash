@@ -17,6 +17,9 @@ router.put('/registerPersonal/:userId', updateUserPersonal);
 router.get('/usersFilter', getUsersWithFilters);
 
 
+
+
+
 export default router;
 
 

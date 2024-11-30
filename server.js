@@ -7,9 +7,12 @@ import auditRoutes from './api/routes/auditRoutes.js';
 import verificationRoutes from './api/routes/verificationRoutes.js';
 import accessRoutes from './api/routes/accessRoutes.js';
 import authRoutes from './api/routes/auth.js';
+
+import authApkRoutes from './api/routes/authApk.js';
 import emailRoutes from './api/routes/emailRoutes.js';
 import counterRoutes from './api/routes/counterRoutes.js';
 import { errorHandler } from './api/middleware/errorHandler.js';
+import applicationsRoutes from './api/routes/applicationsRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -28,6 +31,11 @@ app.use('/api/users', accessRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/counter', counterRoutes);
+
+
+
+app.use('/api/applications', applicationsRoutes);
+app.use('/api/authApk', authApkRoutes);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
