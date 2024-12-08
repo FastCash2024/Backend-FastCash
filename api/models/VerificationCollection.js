@@ -19,7 +19,6 @@ const verificationCollectionSchema = new mongoose.Schema({
     asesorVerificador: String,
     emaiVerificador: String,
     acotacionVerificador: String
-
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'

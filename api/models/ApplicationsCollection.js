@@ -21,12 +21,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 3
   },
-  calificacion: {
+  icon: {
     type: String,
     required: true,
     minlength: 3
   },
-  imgDeAplicacion: {
+  categoria: {
     type: String,
     required: true,
     minlength: 3

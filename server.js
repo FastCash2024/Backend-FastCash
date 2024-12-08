@@ -7,22 +7,30 @@ import auditRoutes from './api/routes/auditRoutes.js';
 import verificationRoutes from './api/routes/verificationRoutes.js';
 import accessRoutes from './api/routes/accessRoutes.js';
 import authRoutes from './api/routes/auth.js';
+import otpRoutes from './api/routes/otpRoutes.js';
 
 import authApkRoutes from './api/routes/authApk.js';
 import emailRoutes from './api/routes/emailRoutes.js';
 import counterRoutes from './api/routes/counterRoutes.js';
 import { errorHandler } from './api/middleware/errorHandler.js';
 import applicationsRoutes from './api/routes/applicationsRoutes.js';
+import bodyParser from  'body-parser';
+import twilio from 'twilio';
 
 dotenv.config();
 const app = express();
+app.use(bodyParser.json());
+
 
 app.use(cors());
-app.use(express.json());
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// app.use(express.json());
 
 // Conectar a MongoDB
 connectDB();
-
+app.use(express.json({ limit: '50mb' })); // Ajusta el límite según el tamaño de las solicitudes esperadas
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Rutas
 app.use('/api/cases', caseRoutes);
 app.use('/api/audits', auditRoutes);
@@ -32,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/counter', counterRoutes);
 
+app.use('/api/otp', otpRoutes);
 
 
 app.use('/api/applications', applicationsRoutes);

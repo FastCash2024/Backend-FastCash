@@ -71,7 +71,7 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   cuentaBancaria: {
-    type: String,
+    type: String,        
   },
   numeroDeDocumentoDeIdentidad: {
     type: String,

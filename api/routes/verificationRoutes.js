@@ -3,7 +3,7 @@ import { createCredit, getAllCredits, getCreditById, updateCredit, deleteCredit 
 
 const router = express.Router();
 
-router.post('/', createCredit);
+router.post('/add', createCredit);
 router.get('/', getAllCredits);
 router.get('/:id', getCreditById);
 router.put('/:id', updateCredit);
