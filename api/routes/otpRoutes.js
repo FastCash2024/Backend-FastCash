@@ -19,6 +19,7 @@ router.post('/send-otp', async (req, res) => {
 
         res.status(200).json({ success: true, sid: verification.sid, message: 'OTP enviado exitosamente' });
     } catch (error) {
+        console.log(error)
         res.status(400).json({ success: false, message: error.message });
     }
 });
