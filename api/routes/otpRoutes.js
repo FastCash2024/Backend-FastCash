@@ -17,7 +17,7 @@ router.post('/send-otp', async (req, res) => {
         const verification = await client.verify.v2.services(process.env.TWILIO_SERVICE_SID)
             .verifications.create({ to: phoneNumber, channel: 'sms' });
 
-        res.status(200).json({ success: true, sid: verification.sid, message: 'OTP enviado exitosamente' });
+        res.status(201).json({ success: true, sid: verification.sid, message: 'OTP enviado exitosamente' });
     } catch (error) {
         console.log(error)
         res.status(400).json({ success: false, message: error.message });
@@ -36,7 +36,7 @@ router.post('/verify-otp', async (req, res) => {
             .verificationChecks.create({ to: phoneNumber, code });
 
         if (verificationCheck.status === 'approved') {
-            res.status(200).json({ success: true, message: 'OTP verificado correctamente' });
+            res.status(201).json({ success: true, message: 'OTP verificado correctamente' });
         } else {
             res.status(400).json({ success: false, message: 'OTP inválido o expirado' });
         }

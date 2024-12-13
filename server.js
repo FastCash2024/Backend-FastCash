@@ -16,6 +16,9 @@ import { errorHandler } from './api/middleware/errorHandler.js';
 import applicationsRoutes from './api/routes/applicationsRoutes.js';
 import bodyParser from  'body-parser';
 import twilio from 'twilio';
+import uploadRoutes from './api/routes/uploadRoutes.js';
+import path from 'path';
+import { fileURLToPath } from 'url'; // Asegúrate de importar fileURLToPath
 
 dotenv.config();
 const app = express();
@@ -29,6 +32,7 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TO
 
 // Conectar a MongoDB
 connectDB();
+
 app.use(express.json({ limit: '50mb' })); // Ajusta el límite según el tamaño de las solicitudes esperadas
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Rutas
@@ -44,7 +48,17 @@ app.use('/api/otp', otpRoutes);
 
 
 app.use('/api/applications', applicationsRoutes);
-app.use('/api/authApk', authApkRoutes);
+// app.use('/api/authApk', authApkRoutes);
+
+app.use('/api/authApk', uploadRoutes);
+
+
+
+
+// const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Middleware de manejo de errores
 app.use(errorHandler);

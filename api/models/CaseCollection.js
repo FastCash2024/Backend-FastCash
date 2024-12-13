@@ -19,7 +19,7 @@ const caseCollectionSchema = new mongoose.Schema({
   Apodo_de_usuario_de_cobro: String
 }, {
   timestamps: true,
-  collection: 'Recolección y Validación de Datos'
+  collection: 'recoleccionValidacionDatos'
 });
 
 export default mongoose.model('CaseCollection', caseCollectionSchema);
