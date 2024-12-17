@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
-
+//MODELO DE CUENTAS DE ADMINISTRACION
 const userSchema = new mongoose.Schema({
+  //DATOS DE CUENTA
   origenDeLaCuenta: {
     type: String,
     required: true,
@@ -25,25 +26,24 @@ const userSchema = new mongoose.Schema({
     unique: true,
     minlength: 3
   },
-  email: {
+  situacionLaboral: {
     type: String,
-    unique: true,
-    trim: true,
-    lowercase: true
-  },
-  cuentaPersonal:{
-    type: String,
+    required: true,
+    minlength: 3
   },
   password: {
     type: String,
     required: true,
     minlength: 8
-  },
-  situacionLaboral: {
+  },  
+  //DATOS DE CUENTA PERSONAL ASIGNADA
+  nombrePersonal: {
     type: String,
-    required: true,
-    minlength: 3
-  }
+  },
+  emailPersonal: {
+    type: String, 
+    lowercase: true
+  },
 }, {
   timestamps: true,
   collection: 'gestionDeAccesos'

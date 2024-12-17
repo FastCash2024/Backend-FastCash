@@ -28,8 +28,6 @@ export const registerPersonal = async (req, res) => {
             email,
             password: hashedPassword,
             codificacionDeRoles,
-
-
         });
 
         await user.save();
@@ -46,7 +44,6 @@ export const registerPersonal = async (req, res) => {
             user: {
                 email: user.email,
                 codificacionDeRoles,
-
             }
         });
     } catch (error) {
@@ -64,12 +61,13 @@ export const register = async (req, res) => {
             codificacionDeRoles,
             apodo,
             cuenta,
-            email,
             password,
-            situacionLaboral } = req.body;
+            situacionLaboral,
+            emailPersonal,
+        } = req.body;
 
         // Verificar si el usuario ya existe
-        const userExists = await User.findOne({ $or: [{ email }, { cuenta }] });
+        const userExists = await User.findOne({ $or: [{ cuenta }] });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -85,7 +83,7 @@ export const register = async (req, res) => {
             codificacionDeRoles,
             apodo,
             cuenta,
-            email,
+            emailPersonal,
             password: hashedPassword,
             situacionLaboral
         });
@@ -108,13 +106,13 @@ export const register = async (req, res) => {
                 codificacionDeRoles: user.codificacionDeRoles,
                 apodo: user.apodo,
                 cuenta: user.cuenta,
-                email: user.email,
+                emailPersonal: user.emailPersonal,
                 situacionLaboral: user.situacionLaboral,
             }
         });
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: error });
     }
 };
 
@@ -302,11 +300,11 @@ export const updateUser = async (req, res) => {
             tipoDeGrupo,
             codificacionDeRoles,
             apodo,
-            cuenta,
-            email,
             situacionLaboral,
+            cuenta,
             password,// Nuevo password
-            cuentaPersonal
+            nombrePersonal,
+            emailPersonal,
         } = req.body;
 
         // Verificar si el usuario existe
@@ -326,13 +324,10 @@ export const updateUser = async (req, res) => {
         user.tipoDeGrupo = tipoDeGrupo || user.tipoDeGrupo;
         user.codificacionDeRoles = codificacionDeRoles || user.codificacionDeRoles;
         user.apodo = apodo || user.apodo;
-        user.cuenta = cuenta || user.cuenta;
-        user.email = email || user.email;
         user.situacionLaboral = situacionLaboral || user.situacionLaboral;
-        user.cuentaPersonal = cuentaPersonal || user.cuentaPersonal
-
-
-
+        user.cuenta = cuenta || user.cuenta;
+        user.nombrePersonal = nombrePersonal || user.nombrePersonal,
+            user.emailPersonal = emailPersonal || user.emailPersonal;
 
         // Guardar los cambios en la base de datos
         await user.save();
@@ -346,10 +341,10 @@ export const updateUser = async (req, res) => {
                 tipoDeGrupo: user.tipoDeGrupo,
                 codificacionDeRoles: user.codificacionDeRoles,
                 apodo: user.apodo,
-                cuenta: user.cuenta,
-                email: user.email,
                 situacionLaboral: user.situacionLaboral,
-                cuentaPersonal:user.cuentaPersonal 
+                cuenta: user.cuenta,
+                nombrePersonal: user.nombrePersonal,
+                emailPersonal: user.emailPersonal,
             }
         });
     } catch (error) {
@@ -465,4 +460,3 @@ export const getUsersWithFilters = async (req, res) => {
 
 
 
-                                      

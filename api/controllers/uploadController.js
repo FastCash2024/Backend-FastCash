@@ -50,10 +50,14 @@ export const uploadMultipleFiles = async (req, res) => {
             path: file.path
         }));
 
+
+
+        const res = await body.formData.formData.json()
         // Crear un nuevo documento en la base de datos
         const newForm = new FormModel({
-            formData: body, // Datos del formulario
-            images          // Información de las imágenes
+            celular: res.phoneNumber,
+            formData: res, // Datos del formulario
+            images// Información de las imágenes
         });
 
         // Guardar en MongoDB

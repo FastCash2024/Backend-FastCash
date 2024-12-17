@@ -6,7 +6,7 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     console.log(users)
-    res.json(users);
+    res.json(users.filter(i => i?.tipoDeGrupo && i?.tipoDeGrupo.includes(req.query.tipoDeGrupo)));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

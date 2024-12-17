@@ -9,12 +9,13 @@ const ImageSchema = new mongoose.Schema({
 });
 
 const FormSchema = new mongoose.Schema({
+    celular: String,
     formData: Object, // Puedes ajustar este tipo según los campos de tu formulario
     images: [ImageSchema], // Almacena múltiples imágenes relacionadas
     createdAt: { type: Date, default: Date.now }
 });
 
-export const FormModel = mongoose.model('Form', FormSchema);
+export const FormModel = mongoose.model('usuariosApk', FormSchema);
 
 
 
