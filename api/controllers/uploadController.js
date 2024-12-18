@@ -52,13 +52,13 @@ export const uploadMultipleFiles = async (req, res) => {
 
         // Crear un nuevo documento en la base de datos
         const newForm = new FormModel({
-            formData: body, // Datos del formulario
+            formData: body.formData, // Datos del formulario
             images          // Información de las imágenes
         });
 
         // Guardar en MongoDB
         const savedForm = await newForm.save();
-
+      
         return res.status(201).json({
             message: 'Datos y archivos guardados con éxito',
             data: savedForm,

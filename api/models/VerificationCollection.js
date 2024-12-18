@@ -8,7 +8,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   estadoDeCredito: String,
   nombreDelCliente: String,
   numeroDeTelefonoMovil: String,
-  clientesNuevos: String,
+  clienteNuevo: String,
   valorSolicitado: Number,
   valorEnviado: Number,
   registroDeNotas: String,
