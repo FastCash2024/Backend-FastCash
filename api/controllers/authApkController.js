@@ -1,95 +1,64 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import UserApk from '../models/AuthApkCollection.js';
+
+import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
+
+
+
+// Obtener todos los usuarios
+export const getFilterUsers = async (req, res) => {
+    try {
+      const { phoneNumber } = req.query;
+  
+      // Validación de phoneNumber
+      if (phoneNumber && typeof phoneNumber !== "string") {
+        return res.status(400).json({ message: "El campo phoneNumber debe ser un string válido." });
+      }
+  
+      // Construcción dinámica del filtro
+      const filter = {};
+      if (phoneNumber) {
+        // Buscar dentro de formData usando la notación de punto
+        filter["formData.phoneNumber"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
+      }
+  
+      // Consulta a MongoDB con filtro dinámico
+      const users = await FormModel.find(filter);
+  
+      // Respuesta
+      if (users.length === 0) {
+        return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
+      }
+  
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
+    }
+  };
+  
+// // Obtener todos los usuarios
+// export const getFilterUsers = async (req, res) => {
+//   try {
+//     const { phoneNumber } = req.query;
+//     // Construcción dinámica del filtro
+//     const filter = {};
+//     if (phoneNumber) {
+//       filter.phoneNumber = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
+//     }
+
+//     // Consulta a MongoDB con filtro dinámico
+//     const users = await FormModel.find(filter);
+//     res.json(users);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 
 // Registro de usuario
 export const signin = async (req, res) => {
-    try {
-        const {
-            email,
-            password,
-        } = req.body;
-        console.log(req.body)
-        // Verificar si el usuario ya existe
-        const userExists = await UserApk.findOne({ $or: [{ email }] });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-    
-        // Crear usuario
-        const user = new UserApk({
-            ...req.body
-        });
-
-        await user.save();
-
-        // Crear token JWT
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
-
-        res.status(201).json({
-            token,
-            user,
-        });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Server error' });
-    }
 };
 
 // Login de usuario
 export const login = async (req, res) => {
-    try {
-        const {
-            cuenta,
-            password,
-        } = req.body;
-
-        // Verificar si el usuario existe
-        const user = await UserApk.findOne({ cuenta });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Verificar la contraseña
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Crear token JWT
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
-        // // Enviar el JWT como una cookie HttpOnly
-        // res.cookie('token', accessToken, {
-        //     httpOnly: true, // Impide el acceso desde JavaScript
-        //     secure: process.env.NODE_ENV !== 'production', // Asegura solo HTTPS en producción
-        //     maxAge: 60 * 60 * 1000 // 1 hora
-        // });
-        res.json({
-            token,
-            user: {
-                id: user._id,
-                origenDeLaCuenta: user.origenDeLaCuenta,
-                tipoDeGrupo: user.tipoDeGrupo,
-                codificacionDeRoles: user.codificacionDeRoles,
-                apodo: user.podo,
-                cuenta: user.cuenta,
-                email: user.email,
-                situacionLaboral: user.situacionLaboral,
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error' });
-    }
 };
 
 

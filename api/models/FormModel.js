@@ -13,6 +13,9 @@ const FormSchema = new mongoose.Schema({
     formData: Object, // Puedes ajustar este tipo según los campos de tu formulario
     images: [ImageSchema], // Almacena múltiples imágenes relacionadas
     createdAt: { type: Date, default: Date.now }
+}, {
+    timestamps: true,
+    collection: 'usuariosApk'
 });
 
 export const FormModel = mongoose.model('usuariosApk', FormSchema);
