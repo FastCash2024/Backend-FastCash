@@ -63,7 +63,7 @@ export const uploadMultipleFiles = async (req, res) => {
         return res.status(201).json({
             message: 'Datos y archivos guardados con éxito',
             data: savedForm,
-            body: data
+            body: error.data
         });
     } catch (error) {
         console.error('Error en uploadMultipleFiles:', error);
