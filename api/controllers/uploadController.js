@@ -50,7 +50,6 @@ export const uploadMultipleFiles = async (req, res) => {
             path: file.path
         }));
         const formData = await JSON.parse(body.formData)
-        console.log(formData)
         // Crear un nuevo documento en la base de datos
         const newForm = new FormModel({
             formData: formData, // Datos del formulario
@@ -59,11 +58,22 @@ export const uploadMultipleFiles = async (req, res) => {
 
         // Guardar en MongoDB
         const savedForm = await newForm.save();
+        console.log(savedForm)
+
+        const sendRes = {
+            nombres: data.nombres,
+            apellidos: data.apellidos,
+            correo: data.correo,
+            metodoPrestamo: data.metodoPrestamo,
+            nombreBanco: data.nombreBanco,
+            numeroCuenta: data.numeroCuenta,
+            numeroDocumento: data.numeroDocumento,
+            phoneNumber: data.phoneNumber,
+        }
 
         return res.status(201).json({
             message: 'Datos y archivos guardados con éxito',
-            data: savedForm,
-            body: formData
+            data: sendRes,
         });
     } catch (error) {
         console.error('Error en uploadMultipleFiles:', error);
