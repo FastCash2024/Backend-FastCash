@@ -61,14 +61,14 @@ export const uploadMultipleFiles = async (req, res) => {
         console.log(savedForm)
 
         const sendRes = {
-            nombres: data.nombres,
-            apellidos: data.apellidos,
-            correo: data.correo,
-            metodoPrestamo: data.metodoPrestamo,
-            nombreBanco: data.nombreBanco,
-            numeroCuenta: data.numeroCuenta,
-            numeroDocumento: data.numeroDocumento,
-            phoneNumber: data.phoneNumber,
+            nombres: formData.nombres,
+            apellidos: formData.apellidos,
+            correo: formData.correo,
+            metodoPrestamo: formData.metodoPrestamo,
+            nombreBanco: formData.nombreBanco,
+            numeroCuenta: formData.numeroCuenta,
+            numeroDocumento: formData.numeroDocumento,
+            phoneNumber: formData.phoneNumber,
         }
 
         return res.status(201).json({
