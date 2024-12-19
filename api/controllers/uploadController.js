@@ -49,7 +49,7 @@ export const uploadMultipleFiles = async (req, res) => {
             size: file.size,
             path: file.path
         }));
-        const data = await JSON.parse(body.formData)
+        const data = await JSON.parse(body.formData.data)
         // Crear un nuevo documento en la base de datos
         const newForm = new FormModel({
             formData: data, // Datos del formulario
