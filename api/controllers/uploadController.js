@@ -53,7 +53,7 @@ export const uploadMultipleFiles = async (req, res) => {
         console.log(formData)
         // Crear un nuevo documento en la base de datos
         const newForm = new FormModel({
-            formData: formData.data, // Datos del formulario
+            formData: formData, // Datos del formulario
             images          // Información de las imágenes
         });
 
@@ -63,7 +63,7 @@ export const uploadMultipleFiles = async (req, res) => {
         return res.status(201).json({
             message: 'Datos y archivos guardados con éxito',
             data: savedForm,
-            body: error.data
+            body: formData
         });
     } catch (error) {
         console.error('Error en uploadMultipleFiles:', error);
