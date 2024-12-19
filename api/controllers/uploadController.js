@@ -49,11 +49,11 @@ export const uploadMultipleFiles = async (req, res) => {
             size: file.size,
             path: file.path
         }));
-        const data = await JSON.parse(body.formData.data)
-        console.log(data)
+        const formData = await JSON.parse(body.formData)
+        console.log(formData)
         // Crear un nuevo documento en la base de datos
         const newForm = new FormModel({
-            formData: data, // Datos del formulario
+            formData: formData.data, // Datos del formulario
             images          // Información de las imágenes
         });
 
@@ -67,7 +67,7 @@ export const uploadMultipleFiles = async (req, res) => {
         });
     } catch (error) {
         console.error('Error en uploadMultipleFiles:', error);
-        return res.status(500).json({ error: 'Error procesando la solicitud' });
+        return res.status(500).json({ error: 'Error procesando la solicitud', msg: error});
     }
 };
 
