@@ -25,4 +25,10 @@ router.get('/usersApk', getFilterUsersApk);
 // Ruta para subir múltiples archivos
 router.post('/register', upload.array('images', 5), uploadMultipleFiles);
 
+router.post('/login', login);
+router.post('/signin', signin);
+
+
+
+
 export default router; // Cambiado a export default
