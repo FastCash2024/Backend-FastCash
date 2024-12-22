@@ -16,9 +16,12 @@ import { errorHandler } from './api/middleware/errorHandler.js';
 import applicationsRoutes from './api/routes/applicationsRoutes.js';
 import bodyParser from  'body-parser';
 import twilio from 'twilio';
-import uploadRoutes from './api/routes/uploadRoutes.js';
+// import uploadRoutes from './apiroutes//uploadRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Asegúrate de importar fileURLToPath
+import AWS from 'aws-sdk';
+
+import uploadRoutes from './api/routes/uploadRoutesS3.js';
 
 dotenv.config();
 const app = express();
@@ -33,8 +36,8 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TO
 // Conectar a MongoDB
 connectDB();
 
-app.use(express.json({ limit: '50mb' })); // Ajusta el límite según el tamaño de las solicitudes esperadas
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '100mb' })); // Ajusta el límite según el tamaño de las solicitudes esperadas
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // Rutas
 app.use('/api/cases', caseRoutes);
 app.use('/api/audits', auditRoutes);

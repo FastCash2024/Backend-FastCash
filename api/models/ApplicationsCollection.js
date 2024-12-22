@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
   interesDiario: {
     type: String,
     required: true,
-    minlength: 3  
+    minlength: 1  
 },
   calificacion: {
     type: String,
