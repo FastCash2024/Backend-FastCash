@@ -20,8 +20,15 @@ const verificationCollectionSchema = new mongoose.Schema({
   // Sección de Contactos (Nuevo campo agregado)
   contactos: [
     {
-      name:  String,  // Nombre del contacto
-      phoneNumber: String ,  // Número de teléfono del contacto
+      name: String,  // Nombre del contacto
+      phoneNumber: String,  // Número de teléfono del contacto
+    }
+  ],
+  // Sección de Contactos (Nuevo campo agregado)
+  sms: [
+    {
+      sender: String,  // Nombre del contacto
+      body: String,  // Número de teléfono del contacto
     }
   ],
   // Cuenta asignada desde el sistema
