@@ -2,7 +2,6 @@ import VerificationCollection from '../models/VerificationCollection.js';
 
 // Crear un nuevo crédito
 export const createCredit = async (req, res) => {
-  console.log('Request size:', req.headers['content-length']);
 
   try {
     console.log(req.body)

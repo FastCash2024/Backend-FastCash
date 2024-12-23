@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const verificationCollectionSchema = new mongoose.Schema({
   // ----------DATOS DE TABLA --------Recolección y Validación de Datos
-        // Datos enviados del celu
+  // Datos enviados del celu
   numeroDePrestamo: String,
   idDeSubFactura: String,
   estadoDeCredito: String,
@@ -17,10 +17,17 @@ const verificationCollectionSchema = new mongoose.Schema({
   fechaDeCreacionDeLaTarea: String,
   fechaDeTramitacionDelCaso: String,
   nombreDeLaEmpresa: String,
-      // Cuenta asignada desde el sistema
+  // Sección de Contactos (Nuevo campo agregado)
+  contactos: [
+    {
+      name:  String,  // Nombre del contacto
+      PhoneNumber: String ,  // Número de teléfono del contacto
+    }
+  ],
+  // Cuenta asignada desde el sistema
   apodoDeUsuarioDeCobro: String,
   cuentaVerificador: String,
-      // Asesor asignado variable todods los dias
+  // Asesor asignado variable todods los dias
   asesor: String,
   emailAsesor: String,
   acotacionAsesor: String
