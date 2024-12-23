@@ -41,10 +41,10 @@ export const getFilterUsersApk = async (req, res) => {
     const { phoneNumber } = req.query;
     console.log(phoneNumber)
 
-    // Validación de phoneNumber
-    if (phoneNumber && typeof phoneNumber !== "string") {
-      return res.status(400).json({ message: "El campo phoneNumber debe ser un string válido." });
-    }
+    // // Validación de phoneNumber
+    // if (phoneNumber && typeof phoneNumber !== "string") {
+    //   return res.status(400).json({ message: "El campo phoneNumber debe ser un string válido." });
+    // }
 
     // Construcción dinámica del filtro
     const filter = {};
