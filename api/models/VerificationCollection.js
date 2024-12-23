@@ -21,7 +21,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   contactos: [
     {
       name:  String,  // Nombre del contacto
-      PhoneNumber: String ,  // Número de teléfono del contacto
+      phoneNumber: String ,  // Número de teléfono del contacto
     }
   ],
   // Cuenta asignada desde el sistema
