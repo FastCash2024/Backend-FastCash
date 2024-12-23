@@ -7,7 +7,6 @@ import {
   handleFileDelete,
   handleGetSignedUrl,
 } from '../controllers/uploadControllerS3.js';
-import {login, signin} from '../controllers/authApkController.js';
 
 const router = express.Router();
 
@@ -26,7 +25,6 @@ router.get('/:fileName', handleFileGet);
 router.delete('/:fileName', handleFileDelete);
 router.get('/signed-url/:fileName', handleGetSignedUrl);
 
-router.post('/login', login);
-router.post('/signin', signin);
+
 
 export default router;

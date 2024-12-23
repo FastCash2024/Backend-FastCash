@@ -36,8 +36,10 @@ export const getFilterUsers = async (req, res) => {
 
 // Obtener todos los usuarios
 export const getFilterUsersApk = async (req, res) => {
+  console.log(req)
   try {
     const { phoneNumber } = req.query;
+    console.log(phoneNumber)
 
     // Validación de phoneNumber
     if (phoneNumber && typeof phoneNumber !== "string") {

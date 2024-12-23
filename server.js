@@ -16,12 +16,12 @@ import { errorHandler } from './api/middleware/errorHandler.js';
 import applicationsRoutes from './api/routes/applicationsRoutes.js';
 import bodyParser from  'body-parser';
 import twilio from 'twilio';
-// import uploadRoutes from './apiroutes//uploadRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Asegúrate de importar fileURLToPath
 import AWS from 'aws-sdk';
+import uploadRoutes from './api/routes/uploadRoutes.js';
 
-import uploadRoutes from './api/routes/uploadRoutesS3.js';
+// import uploadRoutes from './api/routes/uploadRoutesS3.js';
 
 dotenv.config();
 const app = express();

@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path'; // Asegúrate de importar 'path'
 import { uploadSingleFile, uploadMultipleFiles } from '../controllers/uploadController.js';
-import {login, signin, getFilterUsers, getFilterUsersApk} from '../controllers/authApkController.js';
+import {getFilterUsers, getFilterUsersApk} from '../controllers/authApkController.js';
 
 const router = express.Router();
 
@@ -25,8 +25,7 @@ router.get('/usersApk', getFilterUsersApk);
 // Ruta para subir múltiples archivos
 router.post('/register', upload.array('images', 5), uploadMultipleFiles);
 
-router.post('/login', login);
-router.post('/signin', signin);
+
 
 
 
