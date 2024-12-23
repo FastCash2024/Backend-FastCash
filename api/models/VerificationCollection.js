@@ -17,6 +17,25 @@ const verificationCollectionSchema = new mongoose.Schema({
   fechaDeCreacionDeLaTarea: String,
   fechaDeTramitacionDelCaso: String,
   nombreDeLaEmpresa: String,
+
+  sexo: String,
+  correo: String,
+  fechaNacimiento: String,
+  metodoPrestamo: String,
+  nombreBanco: String,
+  numeroCuenta: String,
+  numeroDocumento: String,
+  phoneNumber: String,
+  refDosNombres: String,
+  refDosRelacion: String,
+  refDosTelefono: String,
+  refUnoNombres: String,
+  refUnoRelacion: String,
+  refUnoTelefono: String,
+  sexo: String,
+  tipoCuenta: String,
+
+
   // Sección de Contactos (Nuevo campo agregado)
   contactos: [
     {
