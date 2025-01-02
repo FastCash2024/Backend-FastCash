@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-
+  //Sistema de creacion de cuenta personal
   email: {
     type: String,
     required: true,
@@ -14,34 +14,21 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 8
   },
-  codificacionDeRoles: {
-    type: String,
-    minlength: 3
-  },
-  rolAsignado: {
-    type: String,
-    minlength: 3
-  },
-  nombreCompleto: {
-    type: String,
-  },
-  dni: {
-    type: String,
-  },
-  telefono: {
-    type: String,
-  },
-  cuenta: {
-    type: String,
-  },
-  apodo: {
-    type: String,
-  },
+  codificacionDeRoles: String,
+
+  // Actualizacion de cuenta personal
+  nombreCompleto: String,
+  dni: String,
+  telefono: String,
+  fotoURL: String,
+
+  // Actualizacion de cuenta personal
+  cuenta: String,
+  apodo: String,
 
 }, {
   timestamps: true,
   collection: 'gestionDeAccesosPersonales'
-
 });
 
 export default mongoose.model('UserPersonal', userSchema);

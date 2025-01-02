@@ -20,6 +20,7 @@ import path from 'path';
 import { fileURLToPath } from 'url'; // Asegúrate de importar fileURLToPath
 import AWS from 'aws-sdk';
 import uploadRoutes from './api/routes/uploadRoutes.js';
+import smsRoutes from './api/routes/smsRoutes.js';
 
 // import uploadRoutes from './api/routes/uploadRoutesS3.js';
 
@@ -28,7 +29,9 @@ const app = express();
 app.use(bodyParser.json());
 
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3001', // Reemplaza con el dominio permitido
+}));
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // app.use(express.json());
@@ -55,6 +58,7 @@ app.use('/api/applications', applicationsRoutes);
 
 app.use('/api/authApk', uploadRoutes);
 
+app.use('/api/sms', smsRoutes);
 
 
 

@@ -83,7 +83,52 @@ export const getFilterUsersApk = async (req, res) => {
     res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
   }
 };
+// Obtener todos los usuarios
+export const getFilterUsersApkFromWeb = async (req, res) => {
+  console.log(req)
+  try {
+    const { phoneNumber } = req.query;
 
+    // Construcción dinámica del filtro
+    const filter = {};
+    if (phoneNumber) {
+      // Buscar dentro de formData usando la notación de punto
+      filter["formData.phoneNumber"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
+    }
+
+    // Consulta a MongoDB con filtro dinámico
+    const users = await FormModel.find(filter);
+    console.log(phoneNumber)
+    console.log(users)
+
+    // Respuesta
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
+    }
+    if (users.length > 1) {
+
+      return res.status(204).json({ message: "Many Accounts" });
+
+    }
+    if (users.length === 1) {
+      const formData = { ...users[0].formData, photoURLs: [...users[0].images.map((image) => `https://api.fastcash-mx.com/${image.path}`)] }
+      delete formData['contactos']
+      delete formData['sms']
+
+
+      const dataRes = {
+        userID: users[0].id,
+        ...formData
+      }
+      return res.json(dataRes);
+      ;
+    }
+    return res.status(404).json({ message: "non exist" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
+  }
+};
 // Registro de usuario
 export const signin = async (req, res) => {
 };

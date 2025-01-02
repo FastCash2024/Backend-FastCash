@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer'
 
 export async function sendEmail(req, res) {
-    console.log('ghj')
     const transporter = nodemailer.createTransport({
         service: "Gmail",
         auth: {

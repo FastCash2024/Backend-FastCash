@@ -39,8 +39,6 @@ export const register = async (req, res) => {
     }
 };
 
-
-
 // Registro de usuario
 // export const register = async (req, res) => {
 //     try {

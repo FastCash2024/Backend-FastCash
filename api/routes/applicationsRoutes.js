@@ -4,7 +4,6 @@ import multer from 'multer';
 
 const router = express.Router();
 const storage = multer.memoryStorage();
-// const upload = multer({ storage });
 // Configuración de Multer para manejar múltiples archivos
 const upload = multer({
   storage: multer.memoryStorage(),  // Almacenamiento en memoria

@@ -16,10 +16,35 @@ export const createCredit = async (req, res) => {
 // Obtener todos los créditos
 export const getAllCredits = async (req, res) => {
   try {
-    const { numeroDePrestamo, idDeSubFactura, estadoDeCredito, nombreDelCliente, numeroDeTelefonoMovil, clientesNuevo, nombreDelProducto, fechaDeReembolso, fechaDeCreacionDeLaTarea, fechaDeTramitacionDelCaso } = req.query;
+    const {
+      cuentaVerificador,
+      cuentaCobrador,
+      cuentaAuditor,
+      numeroDePrestamo,
+      idDeSubFactura,
+      estadoDeCredito,
+      nombreDelCliente,
+      numeroDeTelefonoMovil,
+      clientesNuevo,
+      nombreDelProducto,
+      fechaDeReembolso,
+      fechaDeCreacionDeLaTarea,
+      fechaDeTramitacionDelCaso } = req.query;
+
     // Construcción dinámica del filtro
     const filter = {};
-
+    if (cuentaVerificador) {
+      filter.cuentaVerificador = { $regex: cuentaVerificador, $options: "i" };
+    }
+    if (cuentaCobrador) {
+      filter.cuentaCobrador = { $regex: cuentaCobrador, $options: "i" };
+    }
+    if (cuentaAuditor) {
+      filter.cuentaAuditor = { $regex: cuentaAuditor, $options: "i" };
+    }
+    if (numeroDePrestamo) {
+      filter.numeroDePrestamo = { $regex: numeroDePrestamo, $options: "i" };
+    }
     if (numeroDePrestamo) {
       filter.numeroDePrestamo = { $regex: numeroDePrestamo, $options: "i" };
     }
@@ -28,7 +53,8 @@ export const getAllCredits = async (req, res) => {
       filter.idDeSubFactura = { $regex: idDeSubFactura, $options: "i" };
     }
     if (estadoDeCredito) {
-      filter.estadoDeCredito = { $regex: estadoDeCredito, $options: "i" };
+      const palabras = estadoDeCredito.split(",").map(palabra => palabra.trim());
+      filter.$or = palabras.map(palabra => ({ estadoDeCredito: palabra }));
     }
     if (nombreDelCliente) {
       filter.nombreDelCliente = { $regex: nombreDelCliente, $options: "i" };
@@ -52,10 +78,11 @@ export const getAllCredits = async (req, res) => {
       if (fechaDeCreacionDeLaTarea) filter.fechaDeCreacionDeLaTarea = new Date(fechaDeCreacionDeLaTarea);
       if (fechaDeTramitacionDelCaso) filter.fechaDeTramitacionDelCaso = new Date(fechaDeTramitacionDelCaso);
     }
+    console.log(cuentaVerificador)
 
     // Consulta a MongoDB con filtro dinámico
     const credits = await VerificationCollection.find(filter);
-
+    console.log(credits)
     res.json(credits);
   } catch (error) {
     console.error("Error al obtener créditos:", error);
@@ -77,6 +104,7 @@ export const getCreditById = async (req, res) => {
 
 // Actualizar un crédito
 export const updateCredit = async (req, res) => {
+  console.log("req", req.body)
   try {
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedCredit) return res.status(404).json({ message: 'Crédito no encontrado' });

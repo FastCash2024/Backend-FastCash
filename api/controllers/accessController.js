@@ -40,7 +40,7 @@ import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la rut
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
   try {
-    const { tipoDeGrupo, situacionLaboral } = req.query;
+    const { tipoDeGrupo, situacionLaboral, emailPersonal } = req.query;
     // Construcción dinámica del filtro
     const filter = {};
     if (tipoDeGrupo) {
@@ -49,6 +49,9 @@ export const getAllUsers = async (req, res) => {
 
     if (situacionLaboral) {
       filter.situacionLaboral = { $regex: situacionLaboral, $options: "i" }; // Insensible a mayúsculas
+    }
+    if (emailPersonal) {
+      filter.emailPersonal = { $regex: emailPersonal, $options: "i" };
     }
     // Consulta a MongoDB con filtro dinámico
     const users = await User.find(filter);
@@ -59,7 +62,13 @@ export const getAllUsers = async (req, res) => {
 };
 export const getAllPersonalAccounts = async (req, res) => {
   try {
-    const users = await UserPersonal.find();
+    const { email } = req.query;
+    // Construcción dinámica del filtro
+    const filter = {};
+    if (email) {
+      filter.email = { $regex: email, $options: "i" };
+    }
+    const users = await UserPersonal.find(filter);
     console.log(users)
     res.json(users);
   } catch (error) {

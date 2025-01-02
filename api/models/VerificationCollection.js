@@ -1,5 +1,31 @@
 import mongoose from 'mongoose';
 
+
+const ContactosSchema = new mongoose.Schema({
+  name: String,
+  phoneNumber: String
+});
+const SmsSchema = new mongoose.Schema({
+  sender: String,
+  body: String,
+});
+const AcotacionSchema = new mongoose.Schema({
+  acotacion: String,
+  cuenta: String,
+  asesor: String,
+  emailAsesor: String,
+  fecha: String,
+});
+const TrackingDeOperacionesSchema = new mongoose.Schema({
+  operacion: String,
+  modificacion: String,
+  fecha: String,
+
+  cuenta: String,
+  asesor: String,
+  emailAsesor: String,
+});
+
 const verificationCollectionSchema = new mongoose.Schema({
   // ----------DATOS DE TABLA --------Recolección y Validación de Datos
   // Datos enviados del celu
@@ -18,28 +44,28 @@ const verificationCollectionSchema = new mongoose.Schema({
   fechaDeTramitacionDelCaso: String,
   nombreDeLaEmpresa: String,
 
+  // Datos capturados del caso
+  contactos: [ContactosSchema],
+  sms: [SmsSchema],
 
-  // Sección de Contactos (Nuevo campo agregado)
-  contactos: [
-    {
-      name: String,  // Nombre del contacto
-      phoneNumber: String,  // Número de teléfono del contacto
-    }
-  ],
-  // Sección de Contactos (Nuevo campo agregado)
-  sms: [
-    {
-      sender: String,  // Nombre del contacto
-      body: String,  // Número de teléfono del contacto
-    }
-  ],
-  // Cuenta asignada desde el sistema
-  apodoDeUsuarioDeCobro: String,
+  // Usuario de verificación asignado
+  apodoDeUsuarioDeVerificacion: String,
   cuentaVerificador: String,
-  // Asesor asignado variable todods los dias
+
+  // Usuario de cobro asignado
+  apodoDeUsuarioDeCobro: String,
+  cuentaCobrador: String,
+
+  // Usuario de auditoría asignado
+  apodoDeUsuarioDeAuditoria: String,
+  cuentaAuditor: String,
+
+  // Asesor actual asignado
   asesor: String,
   emailAsesor: String,
-  acotacionAsesor: String
+
+  acotaciones: [AcotacionSchema],
+  trackingDeOperaciones: [TrackingDeOperacionesSchema],
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'
