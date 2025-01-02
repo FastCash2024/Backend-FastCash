@@ -29,9 +29,7 @@ const app = express();
 app.use(bodyParser.json());
 
 
-app.use(cors({
-    origin: 'http://localhost:3001', // Reemplaza con el dominio permitido
-}));
+app.use(cors());
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // app.use(express.json());
