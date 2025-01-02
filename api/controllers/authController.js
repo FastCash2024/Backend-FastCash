@@ -178,72 +178,72 @@ export const updateUser = async (req, res) => {
 
 // REGISTER, LOGIN, AND UPDATE CUENTAS PERSONALES  
 export const registerPersonal = async (req, res) => {
-    try {
-        const { body, file } = req;
-        // Validar que el archivo exista
-        if (!file) {
-            return res.status(400).json({ error: 'Debe enviar un archivo' });
-        }
-        // Información del archivo subido
-        const fileInfo = {
-            originalName: file.originalname,
-            mimeType: file.mimetype,
-            size: file.size,
-            savedAs: file.filename // Nombre con el que se guarda
-        };
-        // Información adicional del formulario
-        const formData = body;
-        return res.status(201).json({
-            message: 'Archivo recibido con éxito',
-            fileInfo,
-            formData
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error procesando la solicitud' });
-    }
-
     // try {
-    //     const {
-    //         email,
-    //         password,
-    //         codificacionDeRoles,
-    //     } = req.body;
-
-    //     // Verificar si el usuario ya existe
-    //     const userExists = await UserPersonal.findOne({ $or: [{ email }] });
-    //     if (userExists) {
-    //         return res.status(400).json({ message: 'User already exists' });
+    //     const { body, file } = req;
+    //     // Validar que el archivo exista
+    //     if (!file) {
+    //         return res.status(400).json({ error: 'Debe enviar un archivo' });
     //     }
-
-    //     // Encriptar la contraseña
-    //     const salt = await bcrypt.genSalt(10);
-    //     const hashedPassword = await bcrypt.hash(password, salt);
-    //     // Crear usuario
-    //     const user = new UserPersonal({
-    //         email,
-    //         password: hashedPassword,
-    //         codificacionDeRoles,
-    //     });
-    //     await user.save();
-    //     // Crear token JWT
-    //     const token = jwt.sign(
-    //         { userId: user._id },
-    //         process.env.JWT_SECRET,
-    //         { expiresIn: '1d' }
-    //     );
-
-    //     res.status(201).json({
-    //         token,
-    //         user: {
-    //             email: user.email,
-    //             codificacionDeRoles,
-    //         }
+    //     // Información del archivo subido
+    //     const fileInfo = {
+    //         originalName: file.originalname,
+    //         mimeType: file.mimetype,
+    //         size: file.size,
+    //         savedAs: file.filename // Nombre con el que se guarda
+    //     };
+    //     // Información adicional del formulario
+    //     const formData = body;
+    //     return res.status(201).json({
+    //         message: 'Archivo recibido con éxito',
+    //         fileInfo,
+    //         formData
     //     });
     // } catch (error) {
-    //     console.log(error)
-    //     res.status(500).json({ message: 'Server error' });
+    //     console.error(error);
+    //     res.status(500).json({ error: 'Error procesando la solicitud' });
     // }
+
+    try {
+        const {
+            email,
+            password,
+            codificacionDeRoles,
+        } = req.body;
+
+        // Verificar si el usuario ya existe
+        const userExists = await UserPersonal.findOne({ $or: [{ email }] });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Encriptar la contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        // Crear usuario
+        const user = new UserPersonal({
+            email,
+            password: hashedPassword,
+            codificacionDeRoles,
+        });
+        await user.save();
+        // Crear token JWT
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.status(201).json({
+            token,
+            user: {
+                email: user.email,
+                codificacionDeRoles,
+            }
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 export const loginPersonal = async (req, res) => {
     try {
