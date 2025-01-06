@@ -37,7 +37,7 @@ export const register = async (req, res) => {
             cuenta,
             emailPersonal,
             password: hashedPassword,
-            situacionLaboral
+            situacionLaboral,
         });
 
         await user.save();
@@ -290,11 +290,11 @@ export const loginPersonal = async (req, res) => {
 export const updateUserPersonal = async (req, res) => {
     try {
         const { userId } = req.params; // Obtener el id del usuario de la URL
-
+console.log(req.body)
         const {
             cuenta,
             apodo,
-            telefono,
+            numeroDeTelefonoMovil,
             dni,
             nombreCompleto,
             codificacionDeRoles,
@@ -328,11 +328,12 @@ export const updateUserPersonal = async (req, res) => {
         // Actualizar los demás campos del usuario
         user.cuenta = cuenta || user.cuenta;
         user.apodo = apodo || user.apodo;
-        user.telefono = telefono || user.telefono;
+        user.numeroDeTelefonoMovil = numeroDeTelefonoMovil || user.numeroDeTelefonoMovil;
         user.dni = dni || user.dni;
         user.nombreCompleto = nombreCompleto || user.nombreCompleto;
         user.codificacionDeRoles = codificacionDeRoles || user.codificacionDeRoles;
         user.email = email || user.email;
+        user.numeroDeTelefonoMovil = numeroDeTelefonoMovil || user.numeroDeTelefonoMovil
 
 
         // Guardar los cambios en la base de datos
@@ -345,11 +346,12 @@ export const updateUserPersonal = async (req, res) => {
                 id: userId,
                 cuenta: user.cuenta,
                 apodo: user.apodo,
-                telefono: user.telefono,
+                numeroDeTelefonoMovil: user.numeroDeTelefonoMovil,
                 dni: user.dni,
                 nombreCompleto: user.nombreCompleto,
                 codificacionDeRoles: user.codificacionDeRoles,
                 email: user.email,
+                numeroDeTelefonoMovil: user.numeroDeTelefonoMovil,
             }
         });
     } catch (error) {
@@ -409,21 +411,51 @@ export const getProfileWithToken = async (req, res) => {
         }
     } catch (error) {
         console.log(error)
-        res.status(403).json({ message:  error });
+        res.status(403).json({ message: error });
     }
 };
-
-//
 export const getUsersWithFilters = async (req, res) => {
-  
+    try {
+        const filter = {};
 
+        // Aplicar filtros opcionales si están presentes en `req.query`
+        if (req.query.nombreCompleto) {
+            filter.nombreCompleto = { $regex: req.query.nombreCompleto, $options: 'i' };
+        }
+        if (req.query.email) {
+            filter.email = { $regex: req.query.email, $options: 'i' };
+        }
+        if (req.query.age) {
+            filter.age = parseInt(req.query.age);
+        }
+        if (req.query.status) {
+            filter.status = req.query.status;
+        }
 
+        // Configuración de paginación y límites
+        const limit = parseInt(req.query.limit) || 1000;
+        const page = parseInt(req.query.page) || 1;
 
+        // Consultar MongoDB con filtros, paginación y límite
+        const users = await UserPersonal.find(filter)
+            .limit(limit)
+            .skip((page - 1) * limit)
+            .exec();
 
+        // Obtener el número total de documentos que cumplen con el filtro
+        const totalDocuments = await UserPersonal.countDocuments(filter);
+        const totalPages = Math.ceil(totalDocuments / limit);
 
-    
+        res.json({
+            data: users,
+            currentPage: page,
+            totalPages,
+            totalDocuments,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
-
 export const loginVerificacion = async (req, res) => {
     try {
         const {

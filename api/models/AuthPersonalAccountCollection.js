@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   // Actualizacion de cuenta personal
   nombreCompleto: String,
   dni: String,
-  telefono: String,
+  numeroDeTelefonoMovil: String,
   fotoURL: String,
 
   // Actualizacion de cuenta personal

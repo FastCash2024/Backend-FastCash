@@ -7,7 +7,7 @@ export const getCounter = async (req, res) => {
     let counter = await CounterAccess.findOne({ name });
     if (!counter) {
       // Si no existe el contador, se crea con valor inicial 0
-      counter = new Counter({ name, count: 0 });
+      counter = new CounterAccess({ name, count: 0 });
       await counter.save();
     }
     res.json({ count: counter.count });
@@ -30,6 +30,8 @@ export const incrementCounter = async (req, res) => {
     res.status(500).json({ message: 'Error al incrementar el contador' });
   }
 };
+
+
 
 // Resetear un contador a un valor específico
 export const resetCounter = async (req, res) => {

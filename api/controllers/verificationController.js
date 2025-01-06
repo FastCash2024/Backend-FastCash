@@ -1,11 +1,26 @@
 import VerificationCollection from '../models/VerificationCollection.js';
 
+
+
+function generarSecuencia(count) {
+  let base = 15 + Math.floor(Math.floor(count / 999999)) * 1;
+  let numero = count <= 999999 ? count + 1 : 1;
+ // Función que genera el número en el formato deseado
+  const secuencia = `${base}${String(numero).padStart(6, '0')}`;
+  return secuencia;
+}
+
 // Crear un nuevo crédito
 export const createCredit = async (req, res) => {
-
+  const count = await VerificationCollection.countDocuments();
+  const generador = generarSecuencia(count);
   try {
     console.log(req.body)
-    const newCredit = new VerificationCollection(req.body);
+    const newData = { 
+      ...req.body,
+      numeroDePrestamo: generador
+    }
+    const newCredit = new VerificationCollection(newData);
     const savedCredit = await newCredit.save();
     res.status(201).json(savedCredit);
   } catch (error) {
@@ -31,6 +46,7 @@ export const getAllCredits = async (req, res) => {
       fechaDeCreacionDeLaTarea,
       fechaDeTramitacionDelCaso } = req.query;
 
+
     // Construcción dinámica del filtro
     const filter = {};
     if (cuentaVerificador) {
@@ -48,7 +64,6 @@ export const getAllCredits = async (req, res) => {
     if (numeroDePrestamo) {
       filter.numeroDePrestamo = { $regex: numeroDePrestamo, $options: "i" };
     }
-
     if (idDeSubFactura) {
       filter.idDeSubFactura = { $regex: idDeSubFactura, $options: "i" };
     }
@@ -126,12 +141,18 @@ export const deleteCredit = async (req, res) => {
 };
 
 
+// Función para obtener el conteo total de documentos en la colección
+export const getVerificationCount = async (req, res) => {
+  try {
+    // Usando Mongoose:
+    const count = await VerificationCollection.countDocuments();
 
-
-
-
-
-
+    res.json({ collectionCount: count });
+  } catch (error) {
+    console.error('Error al contar documentos:', error);
+    res.status(500).json({ message: 'Error al contar los documentos' });
+  }
+}
 
 
 

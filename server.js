@@ -47,17 +47,13 @@ app.use('/api/users', accessRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/counter', counterRoutes);
-
 app.use('/api/otp', otpRoutes);
-
-
 app.use('/api/applications', applicationsRoutes);
 // app.use('/api/authApk', authApkRoutes);
-
 app.use('/api/authApk', uploadRoutes);
-
 app.use('/api/sms', smsRoutes);
 
+// app.use('/api/counter', counterRoutes);  
 
 
 // const __dirname = path.dirname(new URL(import.meta.url).pathname);
