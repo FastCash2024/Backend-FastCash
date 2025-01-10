@@ -5,7 +5,7 @@ import VerificationCollection from '../models/VerificationCollection.js';
 function generarSecuencia(count) {
   let base = 15 + Math.floor(Math.floor(count / 999999)) * 1;
   let numero = count <= 999999 ? count + 1 : 1;
- // Función que genera el número en el formato deseado
+  // Función que genera el número en el formato deseado
   const secuencia = `${base}${String(numero).padStart(6, '0')}`;
   return secuencia;
 }
@@ -16,7 +16,7 @@ export const createCredit = async (req, res) => {
   const generador = generarSecuencia(count);
   try {
     console.log(req.body)
-    const newData = { 
+    const newData = {
       ...req.body,
       numeroDePrestamo: generador
     }
@@ -44,7 +44,10 @@ export const getAllCredits = async (req, res) => {
       nombreDelProducto,
       fechaDeReembolso,
       fechaDeCreacionDeLaTarea,
-      fechaDeTramitacionDelCaso } = req.query;
+      fechaDeTramitacionDelCaso,
+      limit = 5,
+      page = 1
+    } = req.query;
 
 
     // Construcción dinámica del filtro
@@ -95,10 +98,22 @@ export const getAllCredits = async (req, res) => {
     }
     console.log(cuentaVerificador)
 
+    // obtener el total de documentos
+    const totalDocuments = await VerificationCollection.countDocuments(filter);
+
+    // calcular el total de pagianas
+    const totalPages = Math.ceil(totalDocuments / limit);
     // Consulta a MongoDB con filtro dinámico
-    const credits = await VerificationCollection.find(filter);
-    console.log(credits)
-    res.json(credits);
+    const credits = await VerificationCollection.find(filter)
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    res.json({
+      data: credits,
+      currentPage: parseInt(page),
+      totalPages,
+      totalDocuments,
+    });
   } catch (error) {
     console.error("Error al obtener créditos:", error);
     res.status(500).json({ message: "Error al obtener los créditos." });
