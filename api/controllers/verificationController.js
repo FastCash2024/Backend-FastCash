@@ -90,24 +90,29 @@ export const getAllCredits = async (req, res) => {
       filter.nombreDelProducto = { $regex: nombreDelProducto, $options: "i" };
     }
 
-    if (fechaDeReembolso || fechaDeCreacionDeLaTarea || fechaDeTramitacionDelCaso) {
-      filter.fecha = {};
-      if (fechaDeReembolso) filter.fechaDeReembolso = new Date(fechaDeReembolso);
-      if (fechaDeCreacionDeLaTarea) filter.fechaDeCreacionDeLaTarea = new Date(fechaDeCreacionDeLaTarea);
-      if (fechaDeTramitacionDelCaso) filter.fechaDeTramitacionDelCaso = new Date(fechaDeTramitacionDelCaso);
+    if (fechaDeReembolso) {
+      filter.fechaDeReembolso = new Date(fechaDeReembolso);
     }
-    console.log(cuentaVerificador)
 
+    // if (fechaDeReembolso || fechaDeCreacionDeLaTarea || fechaDeTramitacionDelCaso) {
+    //   filter.fecha = {};
+    //   if (fechaDeReembolso) filter.fechaDeReembolso = new Date(fechaDeReembolso);
+    //   if (fechaDeCreacionDeLaTarea) filter.fechaDeCreacionDeLaTarea = new Date(fechaDeCreacionDeLaTarea);
+    //   if (fechaDeTramitacionDelCaso) filter.fechaDeTramitacionDelCaso = new Date(fechaDeTramitacionDelCaso);
+    // }
+    
     // obtener el total de documentos
     const totalDocuments = await VerificationCollection.countDocuments(filter);
-
+    
     // calcular el total de pagianas
     const totalPages = Math.ceil(totalDocuments / limit);
     // Consulta a MongoDB con filtro dinámico
     const credits = await VerificationCollection.find(filter)
-      .limit(parseInt(limit))
-      .skip((parseInt(page) - 1) * parseInt(limit));
-
+    .limit(parseInt(limit))
+    .skip((parseInt(page) - 1) * parseInt(limit));
+    
+    console.log(fechaDeReembolso);
+    
     res.json({
       data: credits,
       currentPage: parseInt(page),
@@ -168,75 +173,3 @@ export const getVerificationCount = async (req, res) => {
     res.status(500).json({ message: 'Error al contar los documentos' });
   }
 }
-
-
-
-
-
-
-
-// import Credit from '../models/VerificationCollection.js';
-
-// // Crear un nuevo crédito
-// export const createCredit = async (req, res) => {
-//   try {
-//     const newCredit = new Credit(req.body);
-//     const savedCredit = await newCredit.save();
-//     res.status(201).json(savedCredit);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-
-// // Obtener todos los créditos
-// export const getAllCredits = async (req, res) => {
-//   try {
-//     const credits = await Credit.find();
-//     res.json(credits);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// // Obtener un crédito por ID
-// export const getCreditById = async (req, res) => {
-//   try {
-//     const credit = await Credit.findById(req.params.id);
-//     if (!credit) return res.status(404).json({ message: 'Crédito no encontrado' });
-//     res.json(credit);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// // Actualizar un crédito
-// export const updateCredit = async (req, res) => {
-//   try {
-//     const updatedCredit = await Credit.findByIdAndUpdate(req.params.id, req.body, { new: true });
-//     if (!updatedCredit) return res.status(404).json({ message: 'Crédito no encontrado' });
-//     res.json(updatedCredit);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-
-// // Eliminar un crédito
-// export const deleteCredit = async (req, res) => {
-//   try {
-//     const deletedCredit = await Credit.findByIdAndDelete(req.params.id);
-//     if (!deletedCredit) return res.status(404).json({ message: 'Crédito no encontrado' });
-//     res.json({ message: 'Crédito eliminado exitosamente' });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
-
-
-
-
-
-
-
-
