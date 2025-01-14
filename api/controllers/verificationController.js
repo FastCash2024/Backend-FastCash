@@ -208,7 +208,12 @@ export const getCustomerFlow = async (req, res) => {
             nombreDeLaEmpresa: "$nombreDeLaEmpresa",
             fechaDeReembolso: { $substr: ["$fechaDeReembolso", 0, 10] }
           },
-          total: { $sum: 1 }
+          total: { $sum: 1 },
+          totalCobrado: {
+            $sum: {
+              $cond: [{ $eq: ["$estadoDeCredito", "Cobrado"] }, 1, 0]
+            }
+          }
         }
       },
       {
@@ -216,7 +221,8 @@ export const getCustomerFlow = async (req, res) => {
           _id: 0,
           nombreDeLaEmpresa: "$_id.nombreDeLaEmpresa",
           fechaDeReembolso: "$_id.fechaDeReembolso",
-          total: 1
+          total: 1,
+          totalCobrado: 1
         }
       }
     ]);
@@ -224,11 +230,14 @@ export const getCustomerFlow = async (req, res) => {
     console.log("result", result);
 
     // Transformar el resultado en el formato deseado
-    const formattedResult = result.map(item => ({
-      nombreDeLaEmpresa: item.nombreDeLaEmpresa,
-      total: item.total,
-      fechaDeReembolso: item.fechaDeReembolso
-    }));
+    const formattedResult = result.reduce((acc, item) => {
+      acc[item.nombreDeLaEmpresa] = {
+        total: item.total,
+        totalCobrado: item.totalCobrado,
+        fechaDeReembolso: item.fechaDeReembolso
+      };
+      return acc;
+    }, {});
 
     res.json(formattedResult);
   } catch (error) {
