@@ -87,12 +87,6 @@ export const getAllCredits = async (req, res) => {
       filter.nombreDelProducto = { $regex: nombreDelProducto, $options: "i" };
     }
 
-    // if (fechaDeReembolso) {
-    //   filter.fechaDeReembolso = new Date(fechaDeReembolso);
-    // }
-    console.log("fechaDeReembolso", fechaDeReembolso);
-    console.log("fechaDeCreacionDeLaTarea", fechaDeCreacionDeLaTarea);
-    console.log("fechaDeTramitacionDelCaso", fechaDeTramitacionDelCaso);
     if (fechaDeReembolso || fechaDeCreacionDeLaTarea || fechaDeTramitacionDelCaso) {
       // filter.fecha = {};
       if (fechaDeReembolso) filter.fechaDeReembolso = new Date(fechaDeReembolso).toISOString().split('T')[0];
@@ -178,29 +172,40 @@ export const getVerificationCount = async (req, res) => {
   }
 }
 
+export const getCustomers = async (req, res) => {
+  try {
+    const result = await VerificationCollection.distinct("nombreDeLaEmpresa");
+    console.log("result", result);
+    res.json(result);
+  } catch (error) {
+    console.error("Error al obtener el flujo de clientes:", error);
+    res.status(500).json({ message: "Error al obtener el flujo de clientes." });
+    
+  }
+}
+
 export const getCustomerFlow = async (req, res) => {
   try {
-    const { nombreDeEmpresa, estado, fecha } = req.query;
+    const { fechaDeReembolso } = req.query;
 
-    if (!nombreDeEmpresa || !estado || !fecha) {
+    if (!fechaDeReembolso) {
       return res.status(400).json({ message: "Faltan parámetros requeridos" });
     }
 
-    const fechaFormateada = new Date(fecha).toISOString().split('T')[0];
+    const fechaFormateada = new Date(fechaDeReembolso).toISOString().split('T')[0];
 
     const filter = {
-      nombreDeEmpresa: { $regex: nombreDeEmpresa, $options: "i" },
-      estadoDeCredito: { $regex: estado, $options: "i" },
       fechaDeReembolso: { $regex: fechaFormateada, $options: "i" }
     };
+
+    console.log("filter", filter);
 
     const result = await VerificationCollection.aggregate([
       { $match: filter },
       {
         $group: {
           _id: {
-            nombreDeEmpresa: "$nombreDeEmpresa",
-            estadoDeCredito: "$estadoDeCredito",
+            nombreDeLaEmpresa: "$nombreDeLaEmpresa",
             fechaDeReembolso: { $substr: ["$fechaDeReembolso", 0, 10] }
           },
           total: { $sum: 1 }
@@ -209,8 +214,7 @@ export const getCustomerFlow = async (req, res) => {
       {
         $project: {
           _id: 0,
-          nombreDeEmpresa: "$_id.nombreDeEmpresa",
-          estadoDeCredito: "$_id.estadoDeCredito",
+          nombreDeLaEmpresa: "$_id.nombreDeLaEmpresa",
           fechaDeReembolso: "$_id.fechaDeReembolso",
           total: 1
         }
@@ -219,9 +223,16 @@ export const getCustomerFlow = async (req, res) => {
 
     console.log("result", result);
 
-    res.json(result);
+    // Transformar el resultado en el formato deseado
+    const formattedResult = result.map(item => ({
+      nombreDeLaEmpresa: item.nombreDeLaEmpresa,
+      total: item.total,
+      fechaDeReembolso: item.fechaDeReembolso
+    }));
+
+    res.json(formattedResult);
   } catch (error) {
     console.error("Error al obtener el flujo de clientes:", error);
     res.status(500).json({ message: "Error al obtener el flujo de clientes." });
   }
-}
+};

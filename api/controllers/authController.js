@@ -416,20 +416,22 @@ export const getProfileWithToken = async (req, res) => {
 };
 export const getUsersWithFilters = async (req, res) => {
     try {
+
+        const { nombreCompleto, email, age, status } = req.query;
         const filter = {};
 
         // Aplicar filtros opcionales si están presentes en `req.query`
-        if (req.query.nombreCompleto) {
-            filter.nombreCompleto = { $regex: req.query.nombreCompleto, $options: 'i' };
+        if (nombreCompleto) {
+            filter.nombreCompleto = { $regex: nombreCompleto, $options: 'i' };
         }
-        if (req.query.email) {
-            filter.email = { $regex: req.query.email, $options: 'i' };
+        if (email) {
+            filter.email = { $regex: email, $options: 'i' };
         }
-        if (req.query.age) {
-            filter.age = parseInt(req.query.age);
+        if (age) {
+            filter.age = parseInt(age);
         }
-        if (req.query.status) {
-            filter.status = req.query.status;
+        if (status) {
+            filter.status = status;
         }
 
         // Configuración de paginación y límites
