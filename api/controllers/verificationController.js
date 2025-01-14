@@ -49,7 +49,6 @@ export const getAllCredits = async (req, res) => {
       page = 1
     } = req.query;
 
-
     // Construcción dinámica del filtro
     const filter = {};
     if (cuentaVerificador) {
@@ -64,28 +63,26 @@ export const getAllCredits = async (req, res) => {
     if (numeroDePrestamo) {
       filter.numeroDePrestamo = { $regex: numeroDePrestamo, $options: "i" };
     }
-    if (numeroDePrestamo) {
-      filter.numeroDePrestamo = { $regex: numeroDePrestamo, $options: "i" };
-    }
     if (idDeSubFactura) {
       filter.idDeSubFactura = { $regex: idDeSubFactura, $options: "i" };
     }
+
+    console.log("estadoDeCredito DESDE LA URL", estadoDeCredito);
+
     if (estadoDeCredito) {
-      const palabras = estadoDeCredito.split(",").map(palabra => palabra.trim());
-      filter.$or = palabras.map(palabra => ({ estadoDeCredito: palabra }));
+      const palabras = estadoDeCredito.split(/[,?]/).map(palabra => palabra.trim());
+      filter.estadoDeCredito = palabras;
     }
+    
     if (nombreDelCliente) {
       filter.nombreDelCliente = { $regex: nombreDelCliente, $options: "i" };
     }
-
     if (numeroDeTelefonoMovil) {
       filter.numeroDeTelefonoMovil = { $regex: numeroDeTelefonoMovil, $options: "i" };
     }
-
     if (clientesNuevo) {
       filter.clientesNuevo = clientesNuevo === "true"; // Convertir a booleano
     }
-
     if (nombreDelProducto) {
       filter.nombreDelProducto = { $regex: nombreDelProducto, $options: "i" };
     }
