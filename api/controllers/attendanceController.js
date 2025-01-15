@@ -35,8 +35,9 @@ const getUserAttendance = async (userId, start, end) => {
 
 export const getUsersAttendance = async (req, res) => {
     try {
-        const { startDate, endDate } = req.query;
+        const { startDate, endDate, usuario, tipoDeGrupo } = req.query;
 
+        
         console.log("startDate:", startDate);
         console.log("endDate:", endDate);
 
@@ -58,7 +59,16 @@ export const getUsersAttendance = async (req, res) => {
             throw new Error("Las fechas de inicio y fin no están definidas");
         }
 
-        const users = await User.find({}).lean();
+        const userFilter = {};
+        if (usuario) {
+            userFilter.cuenta = {$regex: usuario, $options: "i" };
+        }
+
+        if (tipoDeGrupo) {
+            userFilter.tipoDeGrupo = { $regex: tipoDeGrupo, $options: "i" }; // Insensible a mayúsculas
+        }
+
+        const users = await User.find(userFilter).lean();
 
         console.log("users:", users);
 
