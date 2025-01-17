@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/', createAuditLog);
 router.get('/', getAllAuditLogs);
-router.get('/:id', getAuditLogById);
+router.get('/:user', getAuditLogById);
 router.put('/:id', updateAuditLog);
 router.delete('/:id', deleteAuditLog);
 

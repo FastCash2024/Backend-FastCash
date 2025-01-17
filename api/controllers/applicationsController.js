@@ -101,12 +101,14 @@ export const getApplications = async (req, res) => {
     }
 };
 
-
-
-
-
-
-
-
-
-
+export const getCustomers = async (req, res) => {
+  try {
+    const result = await Application.distinct("nombre");
+    console.log("result", result);
+    res.json(result);
+  } catch (error) {
+    console.error("Error al obtener el flujo de clientes:", error);
+    res.status(500).json({ message: "Error al obtener el flujo de clientes." });
+    
+  }
+}
