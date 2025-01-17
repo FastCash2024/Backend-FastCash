@@ -6,16 +6,26 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 3
   },
-  prestamoMaximo: {
+  valorPrestado: {
     type: String,
     required: true,
     minlength: 3
   },
+  valorDepositoLiquido: {
+    type: String,
+    required: true,
+    minlength: 3
+  },
+  interesTotal: {
+    type: String,
+    required: true,
+    minlength: 1
+  },
   interesDiario: {
     type: String,
     required: true,
-    minlength: 1  
-},
+    minlength: 1
+  },
   calificacion: {
     type: String,
     required: true,
