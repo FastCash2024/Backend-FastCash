@@ -36,7 +36,9 @@ const getUserAttendance = async (userId, start, end) => {
 export const getUsersAttendanceById = async (req, res) => {
     try {
         const { user } = req.params;
-        const { page = 1, limit = 52 } = req.query;
+        const { page = 1, limit = 52
+            
+         } = req.query;
 
         const limitInt = parseInt(limit, 10);
         const pageInt = parseInt(page, 10);
