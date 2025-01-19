@@ -36,6 +36,9 @@ export const uploadSingleFile = (req, res) => {
 export const uploadMultipleFiles = async (req, res) => {
 
     console.log(req)
+    console.log(req.body)
+    console.log(req.files)
+
     try {
         const { body, files } = req;
 
