@@ -1,4 +1,5 @@
 import { uploadFile,uploadFileToS3, getFile, deleteFile, getSignedUrl } from '../models/S3Model.js';
+import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 export const handleFileUpload = async (req, res) => {
   if (!req.file) {
@@ -24,8 +25,6 @@ export const handleFileUploadMultiples = async (req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
     }
-
-
     // console.log(req)
 
     const fileUrls = [];
