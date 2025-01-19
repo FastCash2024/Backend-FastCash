@@ -39,7 +39,7 @@ export const handleFileUploadMultiples = async (req, res) => {
     return res.status(200).json({ message: 'Files uploaded successfully', urls: fileUrls });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Error uploading files' });
+    return res.status(500).json({ error, });
   }
 };
 
