@@ -14,6 +14,8 @@ export const handleFileUpload = async (req, res) => {
 };
 // Controlador para manejar la carga de múltiples archivos
 export const handleFileUploadMultiples = async (req, res) => {
+
+  console.log(req)
   try {
     // Verificar que los archivos estén presentes
     if (!req.files || req.files.length === 0) {
