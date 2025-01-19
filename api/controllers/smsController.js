@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { SmsModel } from "../models/smsModel.js";
 import { generateRandomCode } from "../utilities/generateCode.js";
+import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 const checkUniqueCode = async (SmsModel, code) => {
   const existingCode = await SmsModel.findOne({ code });
@@ -69,24 +70,50 @@ export const sendSMS = async (req, res) => {
 };
 
 export const verificarSMS = async (req, res) => {
-  const { telefono, code } = req.body;
+  const { to, code } = req.body;
 
-  if (!telefono || !code) {
+  if (!to || !code) {
     return res
       .status(400)
       .json({ error: "Número de teléfono y código son requeridos." });
   }
 
   try {
-    const sms = await SmsModel.findOne({ telefono: telefono, code });
+    const sms = await SmsModel.findOne({ telefono: to, code });
 
     if (!sms) {
       return res.status(400).json({ message: "Código no válido o expirado" });
     }
 
-    res.json({
-      message: "Código verificado con éxito",
-    });
+
+
+    const phoneNumber = to
+
+    // Construcción dinámica del filtro
+    const filter = {};
+    if (phoneNumber) {
+      // Buscar dentro de formData usando la notación de punto
+      filter["formData.phoneNumber"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
+    }
+
+    // Consulta a MongoDB con filtro dinámico
+    const users = await FormModel.find(filter);
+
+    // Respuesta
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
+    }
+
+    res.json(users);
+
+
+
+
+
+
+    // res.json({
+    //   message: "Código verificado con éxito",
+    // });
   } catch (error) {
     res.status(500).json({
       message: "Error al verificar el SMS",
