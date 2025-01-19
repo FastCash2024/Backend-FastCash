@@ -11,7 +11,7 @@ const ImageSchema = new mongoose.Schema({
 const FormSchema = new mongoose.Schema({
     celular: String,
     formData: Object, // Puedes ajustar este tipo según los campos de tu formulario
-    images: [ImageSchema], // Almacena múltiples imágenes relacionadas
+    images: [String],
     createdAt: { type: Date, default: Date.now }
 }, {
     timestamps: true,
