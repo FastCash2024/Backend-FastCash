@@ -20,7 +20,7 @@ const upload = multer({
 });
 // Rutas de S3
 router.post('/upload', upload.single('file'), handleFileUpload);
-router.post('/uploadMultiples', upload.array('files', 10), handleFileUploadMultiples);  // Permite hasta 10 archivos
+router.post('/register', upload.array('files', 10), handleFileUploadMultiples);  // Permite hasta 10 archivos
 router.get('/:fileName', handleFileGet);
 router.delete('/:fileName', handleFileDelete);
 router.get('/signed-url/:fileName', handleGetSignedUrl);
