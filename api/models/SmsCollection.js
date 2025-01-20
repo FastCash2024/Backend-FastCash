@@ -29,7 +29,7 @@ const SmsSendSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    estadoDeEnvioDeSMS: {
+    estadoDeEnvioDeSms: {
         type: String,
         required: true
     }

@@ -80,9 +80,14 @@ export const getSmsLogs = async (req, res) => {
     const skip = (pageInt - 1) * limitInt;
 
     const smsLogs = await SmsSendModel.find()
+      .sort({_id: -1})
       .limit(limitInt)
       .skip(skip);
 
+    const formattedLogs = smsLogs.map(log => ({
+      ...log.toObject(), // Convertir a un objeto plano
+      fechaDeEnvio: log.fechaDeEnvio.toISOString().split('T')[0], // Formato YYYY-MM-DD
+    }));
     // Obtener el total de documentos
     const totalDocuments = await SmsSendModel.countDocuments();
 
@@ -90,7 +95,7 @@ export const getSmsLogs = async (req, res) => {
     const totalPages = Math.ceil(totalDocuments / limitInt);
 
     res.json({
-      data: smsLogs,
+      data: formattedLogs,
       currentPage: pageInt,
       totalPages,
       totalDocuments,
@@ -130,7 +135,7 @@ export const sendCustomSMS = async (req, res) => {
     );
     const data = await response.json();
     console.log("respuesta: ", data.code)
-    const estadoDeEnvioDeSMS = data.code === "0" ? "Enviado" : "No enviado";
+    const estadoDeEnvioDeSms = data.code === "0" ? "Enviado" : "No enviado";
     const newSMS = new SmsSendModel({
       contenido,
       remitenteDeSms,
@@ -138,8 +143,8 @@ export const sendCustomSMS = async (req, res) => {
       canalDeEnvio: "SMS",
       codigoDeProducto,
       producto,
-      fechaDeEnvio: new Date(),
-      estadoDeEnvioDeSMS
+      fechaDeEnvio: new Date().toISOString().split('T')[0],
+      estadoDeEnvioDeSms
     });
     await newSMS.save();
 
