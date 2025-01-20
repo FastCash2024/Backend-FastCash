@@ -124,6 +124,7 @@ export const getApplicationsToApp = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 export const getCustomers = async (req, res) => {
     try {
         const result = await Application.distinct("nombre");
