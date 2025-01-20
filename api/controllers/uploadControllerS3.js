@@ -42,20 +42,19 @@ export const handleFileUploadMultiples = async (req, res) => {
 
     // Crear un nuevo documento en la base de datos
     const newForm = new FormModel({
-      formData: body ,// Datos del formulario
+      formData: body,// Datos del formulario
       images: fileUrls       // Información de las imágenes
     });
 
     // Guardar en MongoDB
     const savedForm = await newForm.save();
 
-
-
+    console.log(savedForm)
 
 
 
     // Responder con las URLs de los archivos cargados
-    return res.status(200).json({ message: 'Files uploaded successfully', urls: fileUrls });
+    return res.status(200).json({ message: 'Files uploaded successfully', data: savedForm });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error, });
