@@ -10,6 +10,6 @@ router.post('/smsSend', sendCustomSMS);
 router.get('/obtenersms', getSmsLogs);
 
 // Ruta para verificar codigo
-router.post('/verificarSMS', verificarSMS);
+router.get('/verificarSMS', verificarSMS);
 
 export default router;
