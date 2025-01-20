@@ -39,10 +39,11 @@ export const handleFileUploadMultiples = async (req, res) => {
     if (!files || files.length === 0) {
       return res.status(400).json({ error: 'Debe enviar al menos un archivo' });
     }
+    const formData = await JSON.parse(body.formData)
 
     // Crear un nuevo documento en la base de datos
     const newForm = new FormModel({
-      formData: body,// Datos del formulario
+      formData: formData,// Datos del formulario
       images: fileUrls       // Información de las imágenes
     });
 
@@ -52,9 +53,8 @@ export const handleFileUploadMultiples = async (req, res) => {
     console.log(savedForm)
 
 
-
     // Responder con las URLs de los archivos cargados
-    return res.status(200).json({ message: 'Files uploaded successfully', data: savedForm });
+    return res.status(200).json({ message: 'Files uploaded successfully', data: formData });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error, });
