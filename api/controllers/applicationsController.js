@@ -101,6 +101,29 @@ export const getApplications = async (req, res) => {
     }
 };
 
+export const getApplicationsToApp = async (req, res) => {
+    try {
+        const {nombre, categoria, limit = 5, page = 1} = req.query;
+    
+        const filter = {};
+        if (nombre) {
+            filter.nombre = { $regex: nombre, $options: "i" };
+        }
+        if (categoria) {
+            filter.categoria = { $regex: categoria, $options: "i" };
+        }
+
+        const applications = await Application.find(filter)
+       
+
+        console.log("applications", applications)
+        res.json(
+         applications
+        );
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 export const getCustomers = async (req, res) => {
     try {
         const result = await Application.distinct("nombre");

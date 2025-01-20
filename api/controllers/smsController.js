@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import { SmsModel } from "../models/smsModel.js";
 import { generateRandomCode } from "../utilities/generateCode.js";
 import { SmsSendModel } from "../models/SmsCollection.js";
+import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 const checkUniqueCode = async (SmsModel, code) => {
   const existingCode = await SmsModel.findOne({ code });
@@ -164,7 +165,7 @@ export const sendCustomSMS = async (req, res) => {
   }
 };
 
-export const verificarSMS = async (req, res) => {
+export const verificarSMS2 = async (req, res) => {
   const { telefono, code } = req.body;
 
   if (!telefono || !code) {
@@ -190,6 +191,59 @@ export const verificarSMS = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+export const verificarSMS = async (req, res) => {
+  console.log(req)
+  try {
+    const { contacto } = req.query;
+
+    // Construcción dinámica del filtro
+    const filter = {};
+    if (contacto) {
+      // Buscar dentro de formData usando la notación de punto
+      filter["formData.contacto"] = { $regex: contacto, $options: "i" }; // Insensible a mayúsculas
+    }
+
+    // Consulta a MongoDB con filtro dinámico
+    const users = await FormModel.find(filter);
+    console.log(contacto)
+    console.log(users)
+
+    // Respuesta
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
+    }
+    if (users.length > 1) {
+
+      return res.status(204).json({ message: "Many Accounts" });
+
+    }
+    if (users.length === 1) {
+      const formData = { ...users[0].formData, photoURLs: [...users[0].images.map((image) => `https://api.fastcash-mx.com/${image.path}`)] }
+      delete formData['contactos']
+      delete formData['sms']
+
+
+      const dataRes = {
+        userID: users[0].id,
+        ...formData
+      }
+      return res.json(dataRes);
+      ;
+    }
+    return res.status(404).json({ message: "non exist" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
+  }
+};
+
+
+
 
 
 

@@ -16,6 +16,7 @@ router.delete('/delete/:id', deleteApplication);
 // Rutas de autenticación
 // router.post('/register', register);
 router.get('/getApplications', getApplications);
+router.get('/getApplicationsToApp', getApplicationsToApp);
 router.get('/customers', getCustomers);
 
 export default router;
