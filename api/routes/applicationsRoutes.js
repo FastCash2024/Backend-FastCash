@@ -1,5 +1,5 @@
 import express from 'express';
-import { register,getApplications, getCustomers } from '../controllers/applicationsController.js';
+import { register,getApplications, getApplicationsToApp, getCustomers } from '../controllers/applicationsController.js';
 import multer from 'multer';
 
 const router = express.Router();
@@ -14,6 +14,7 @@ router.post('/register', upload.single('file'), register);
 // Rutas de autenticación
 // router.post('/register', register);
 router.get('/getApplications', getApplications);
+router.get('/getApplicationsToApp', getApplicationsToApp);
 router.get('/customers', getCustomers);
 
 export default router;
