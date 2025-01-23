@@ -98,7 +98,7 @@ export const getAllPersonalAccounts = async (req, res) => {
 
     const totalPages = Math.ceil(totalDocuments/limit);
     const users = await UserPersonal.find(filter).limit(parseInt(limit)).skip((parseInt(page)-1)*parseInt(limit));
-    console.log(users)
+    // console.log(users)
     res.json({
       data: users,
       currentPage: parseInt(page),

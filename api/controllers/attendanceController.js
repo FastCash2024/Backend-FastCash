@@ -5,7 +5,6 @@ import { getCurrentWeekRange, getWeekNumber, getWeekRange } from "../utilities/c
 
 const getUserAttendance = async (userId, start, end) => {
     try {
-
         const attendances = await AttendanceModel.find({
             user: userId,
             fecha: {
@@ -22,7 +21,7 @@ const getUserAttendance = async (userId, start, end) => {
             );
             attendanceMap[formattedDate] = attendanceRecord
                 ? attendanceRecord.EstadoDeAsistencia
-                : "Libre"; // Si no hay registro, se asume que faltó
+                : "";
         }
 
         return attendanceMap;
@@ -32,6 +31,64 @@ const getUserAttendance = async (userId, start, end) => {
     }
 };
 
+export const getUsersAttendance = async (req, res) => {
+    try {
+        const { startDate, endDate, usuario, tipoDeGrupo } = req.query;
+
+
+        console.log("startDate:", startDate);
+        console.log("endDate:", endDate);
+
+        let start, end;
+        if (startDate && endDate) {
+            start = new Date(startDate);
+            end = new Date(endDate);
+        } else {
+            const currentWeekRange = getCurrentWeekRange();
+            start = currentWeekRange.start;
+            end = currentWeekRange.end;
+        }
+
+        // Verificar que start y end estén definidos
+        console.log("start:", start);
+        console.log("end:", end);
+
+        if (!start || !end) {
+            throw new Error("Las fechas de inicio y fin no están definidas");
+        }
+
+        const userFilter = {};
+        if (usuario) {
+            userFilter.cuenta = { $regex: usuario, $options: "i" };
+        }
+
+        if (tipoDeGrupo) {
+            userFilter.tipoDeGrupo = { $regex: tipoDeGrupo, $options: "i" }; // Insensible a mayúsculas
+        }
+
+        const users = await User.find(userFilter).lean();
+
+        // console.log("users:", users);
+
+        const result = await Promise.all(
+            users.map(async (user) => ({
+                id: user._id,
+                usuario: user.cuenta,
+                tipoDeGrupo: user.tipoDeGrupo,
+                asistencias: await getUserAttendance(user._id, start, end),
+            }))
+        );
+
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error("Error al obtener los usuarios:", error);
+        res.status(500).json({
+            error: "Error al obtener los usuarios",
+            details: error.message
+        });
+    }
+};
 
 export const getUsersAttendanceById = async (req, res) => {
     try {
@@ -121,64 +178,6 @@ export const getUsersAttendanceById = async (req, res) => {
     }
 };
 
-export const getUsersAttendance = async (req, res) => {
-    try {
-        const { startDate, endDate, usuario, tipoDeGrupo } = req.query;
-
-
-        console.log("startDate:", startDate);
-        console.log("endDate:", endDate);
-
-        let start, end;
-        if (startDate && endDate) {
-            start = new Date(startDate);
-            end = new Date(endDate);
-        } else {
-            const currentWeekRange = getCurrentWeekRange();
-            start = currentWeekRange.start;
-            end = currentWeekRange.end;
-        }
-
-        // Verificar que start y end estén definidos
-        console.log("start:", start);
-        console.log("end:", end);
-
-        if (!start || !end) {
-            throw new Error("Las fechas de inicio y fin no están definidas");
-        }
-
-        const userFilter = {};
-        if (usuario) {
-            userFilter.cuenta = { $regex: usuario, $options: "i" };
-        }
-
-        if (tipoDeGrupo) {
-            userFilter.tipoDeGrupo = { $regex: tipoDeGrupo, $options: "i" }; // Insensible a mayúsculas
-        }
-
-        const users = await User.find(userFilter).lean();
-
-        console.log("users:", users);
-
-        const result = await Promise.all(
-            users.map(async (user) => ({
-                usuario: user.cuenta,
-                tipoDeGrupo: user.tipoDeGrupo,
-                asistencias: await getUserAttendance(user._id, start, end),
-            }))
-        );
-
-        res.status(200).json(result);
-
-    } catch (error) {
-        console.error("Error al obtener los usuarios:", error);
-        res.status(500).json({
-            error: "Error al obtener los usuarios",
-            details: error.message
-        });
-    }
-};
-
 export const registerAttendance = async (req, res) => {
     try {
         const { userId } = req.body;
@@ -257,6 +256,54 @@ export const registerAttendance = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             error: "Error al registrar la asistencia",
+            details: error.message,
+        });
+    }
+}
+
+export const updateAttendance = async (req, res) => {
+    try {
+        const { userId, fecha, EstadoDeAsistencia, observaciones } = req.body;
+
+        console.log("userId: ", userId)
+        console.log("fecha: ", fecha)
+
+        const fechaInicio = new Date(fecha);
+        fechaInicio.setUTCHours(0, 0, 0, 0);
+
+        const fechaFin = new Date(fecha);
+        fechaFin.setUTCHours(23, 59, 59, 999);
+
+        const asistenciaExistente = await AttendanceModel.findOne({
+            user: userId,
+            fecha: {
+                $gte: fechaInicio,
+                $lte: fechaFin,
+            },
+        });
+
+        
+        console.log("Existe la sistencia: ", asistenciaExistente)
+
+        if (!asistenciaExistente) {
+            return res.status(404).json({
+                error: "Asistencia no encontrada para el usuario en esta fecha",
+            });
+        }
+
+        asistenciaExistente.EstadoDeAsistencia = EstadoDeAsistencia;
+        asistenciaExistente.observaciones = observaciones;
+
+        await asistenciaExistente.save();
+
+        res.status(200).json({
+            message: "Asistencia actualizada correctamente",
+            asistencia: asistenciaExistente,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            error: "Error al actualizar la asistencia",
             details: error.message,
         });
     }
