@@ -171,13 +171,8 @@ export const sendCustomSMS = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-export const verificarSMS = async (req, res) => {
-  const { to, code } = req.body;
-=======
 export const verificarSMS2 = async (req, res) => {
   const { telefono, code } = req.body;
->>>>>>> 278c8007af100e62eeb839612a3bb28646d12b55
 
   if (!to || !code) {
     return res
