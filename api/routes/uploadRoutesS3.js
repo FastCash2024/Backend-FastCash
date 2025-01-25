@@ -7,7 +7,7 @@ import {
   handleFileDelete,
   handleGetSignedUrl,
 } from '../controllers/uploadControllerS3.js';
-import {getFilterUsers, getFilterUsersApk, getFilterUsersApkFromWeb} from '../controllers/authApkController.js';
+import {getChatsUser, getFilterUsers, getFilterUsersApk, getFilterUsersApkFromWeb} from '../controllers/authApkController.js';
 
 const router = express.Router();
 
@@ -27,6 +27,6 @@ router.post('/register', upload.array('files', 3), handleFileUploadMultiples);  
 // router.get('/signed-url/:fileName', handleGetSignedUrl);
 router.get('/usersApk', getFilterUsersApk);
 router.get('/usersApkFromWeb', getFilterUsersApkFromWeb);
-
+router.get('/usersChat', getChatsUser);
 
 export default router;

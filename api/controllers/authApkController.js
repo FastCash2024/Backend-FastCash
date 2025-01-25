@@ -139,16 +139,42 @@ export const login = async (req, res) => {
 
 export const getChatsUser = async (req, res) => {
   try {
-    // Obtener todos los documentos de la colección
-    const forms = await FormModel.find({});
-    
-    // Enviar la respuesta con los datos
-    res.status(200).json(forms);
+    const {
+      limit = 5,
+      page = 1
+    } = req.query;
+
+    const forms = await FormModel.find({}, 'formData.nombres formData.apellidos formData.contacto formData.sms')
+      .skip((parseInt(page) - 1) * parseInt(limit))  // Paginación
+      .limit(parseInt(limit));  // Límite
+
+    const totalDocuments = await FormModel.countDocuments();
+
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    const result = forms.map(form => {
+      const { nombres, apellidos, contacto, sms } = form.formData;
+      return {
+        _id: form._id,
+        nombreCompleto: `${nombres} ${apellidos}`,
+        contacto,
+        cantidadSms: sms.length 
+      };
+    });
+
+    res.status(200).json({
+      data: result,
+      currentPage: parseInt(page),
+      totalPages,
+      totalDocuments,
+    });
   } catch (error) {
-    console.error("Error al obtener los formularios:", error);
+    console.error("Error al obtener los usuarios:", error);
     res.status(500).json({
-      error: "Error al obtener los formularios",
+      error: "Error al obtener los los usuarios",
       details: error.message,
     });
   }
 };
+
+

@@ -23,8 +23,6 @@ router.get('/users', getFilterUsers);
 router.get('/usersApk', getFilterUsersApk);
 router.get('/usersApkFromWeb', getFilterUsersApkFromWeb);
 
-router.get('/userschat', getChatsUser);
-
 // Ruta para subir múltiples archivos
 router.post('/register', upload.array('images', 5), uploadMultipleFiles);
 
