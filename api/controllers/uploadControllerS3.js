@@ -1,4 +1,5 @@
-import { uploadFile,uploadFileToS3, getFile, deleteFile, getSignedUrl } from '../models/S3Model.js';
+import { uploadFile, uploadFileToS3, getFile, deleteFile, getSignedUrl } from '../models/S3Model.js';
+import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 export const handleFileUpload = async (req, res) => {
   if (!req.file) {
@@ -14,11 +15,17 @@ export const handleFileUpload = async (req, res) => {
 };
 // Controlador para manejar la carga de múltiples archivos
 export const handleFileUploadMultiples = async (req, res) => {
+  console.log("----------------------s3")
+  const { body, files } = req;
+
+  console.log("body", body)
+  console.log("files", files)
   try {
     // Verificar que los archivos estén presentes
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
     }
+    // console.log(req)
 
     const fileUrls = [];
 
@@ -29,11 +36,28 @@ export const handleFileUploadMultiples = async (req, res) => {
       fileUrls.push(result.Location);  // Guardar la URL del archivo cargado
     }
 
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'Debe enviar al menos un archivo' });
+    }
+    const formData = await JSON.parse(body.formData)
+
+    // Crear un nuevo documento en la base de datos
+    const newForm = new FormModel({
+      formData: formData,// Datos del formulario
+      images: fileUrls       // Información de las imágenes
+    });
+
+    // Guardar en MongoDB
+    const savedForm = await newForm.save();
+
+    console.log(savedForm)
+
+
     // Responder con las URLs de los archivos cargados
-    return res.status(200).json({ message: 'Files uploaded successfully', urls: fileUrls });
+    return res.status(200).json({ message: 'Files uploaded successfully', data: formData });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Error uploading files' });
+    return res.status(500).json({ error, });
   }
 };
 

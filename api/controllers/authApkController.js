@@ -98,8 +98,8 @@ export const getFilterUsersApkFromWeb = async (req, res) => {
 
     // Consulta a MongoDB con filtro dinámico
     const users = await FormModel.find(filter);
-    console.log(phoneNumber)
-    console.log(users)
+    // console.log(phoneNumber)
+    // console.log(users)
 
     // Respuesta
     if (users.length === 0) {

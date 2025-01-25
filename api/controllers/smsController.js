@@ -3,6 +3,7 @@ import { SmsModel } from "../models/smsModel.js";
 import { generateRandomCode } from "../utilities/generateCode.js";
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 import { SmsSendModel } from "../models/SmsCollection.js";
+import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 const checkUniqueCode = async (SmsModel, code) => {
   const existingCode = await SmsModel.findOne({ code });
@@ -80,9 +81,14 @@ export const getSmsLogs = async (req, res) => {
     const skip = (pageInt - 1) * limitInt;
 
     const smsLogs = await SmsSendModel.find()
+      .sort({_id: -1})
       .limit(limitInt)
       .skip(skip);
 
+    const formattedLogs = smsLogs.map(log => ({
+      ...log.toObject(), // Convertir a un objeto plano
+      fechaDeEnvio: log.fechaDeEnvio.toISOString().split('T')[0], // Formato YYYY-MM-DD
+    }));
     // Obtener el total de documentos
     const totalDocuments = await SmsSendModel.countDocuments();
 
@@ -90,7 +96,7 @@ export const getSmsLogs = async (req, res) => {
     const totalPages = Math.ceil(totalDocuments / limitInt);
 
     res.json({
-      data: smsLogs,
+      data: formattedLogs,
       currentPage: pageInt,
       totalPages,
       totalDocuments,
@@ -130,7 +136,7 @@ export const sendCustomSMS = async (req, res) => {
     );
     const data = await response.json();
     console.log("respuesta: ", data.code)
-    const estadoDeEnvioDeSMS = data.code === "0" ? "Enviado" : "No enviado";
+    const estadoDeEnvioDeSms = data.code === "0" ? "Enviado" : "No enviado";
     const newSMS = new SmsSendModel({
       contenido,
       remitenteDeSms,
@@ -138,8 +144,8 @@ export const sendCustomSMS = async (req, res) => {
       canalDeEnvio: "SMS",
       codigoDeProducto,
       producto,
-      fechaDeEnvio: new Date(),
-      estadoDeEnvioDeSMS
+      fechaDeEnvio: new Date().toISOString().split('T')[0],
+      estadoDeEnvioDeSms
     });
     await newSMS.save();
 
@@ -165,8 +171,13 @@ export const sendCustomSMS = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 export const verificarSMS = async (req, res) => {
   const { to, code } = req.body;
+=======
+export const verificarSMS2 = async (req, res) => {
+  const { telefono, code } = req.body;
+>>>>>>> 278c8007af100e62eeb839612a3bb28646d12b55
 
   if (!to || !code) {
     return res
@@ -217,6 +228,59 @@ export const verificarSMS = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+export const verificarSMS = async (req, res) => {
+  console.log(req)
+  try {
+    const { contacto } = req.query;
+
+    // Construcción dinámica del filtro
+    const filter = {};
+    if (contacto) {
+      // Buscar dentro de formData usando la notación de punto
+      filter["formData.contacto"] = { $regex: contacto, $options: "i" }; // Insensible a mayúsculas
+    }
+
+    // Consulta a MongoDB con filtro dinámico
+    const users = await FormModel.find(filter);
+    console.log(contacto)
+    console.log(users)
+
+    // Respuesta
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
+    }
+    if (users.length > 1) {
+
+      return res.status(204).json({ message: "Many Accounts" });
+
+    }
+    if (users.length === 1) {
+      const formData = { ...users[0].formData, photoURLs: [...users[0].images.map((image) => `https://api.fastcash-mx.com/${image.path}`)] }
+      delete formData['contactos']
+      delete formData['sms']
+
+
+      const dataRes = {
+        userID: users[0].id,
+        ...formData
+      }
+      return res.json(dataRes);
+      ;
+    }
+    return res.status(404).json({ message: "non exist" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
+  }
+};
+
+
+
 
 
 

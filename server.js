@@ -8,6 +8,7 @@ import verificationRoutes from './api/routes/verificationRoutes.js';
 import accessRoutes from './api/routes/accessRoutes.js';
 import authRoutes from './api/routes/auth.js';
 import otpRoutes from './api/routes/otpRoutes.js';
+import chatRoutes from './api/routes/chatRoutes.js';
 
 import authApkRoutes from './api/routes/authApk.js';
 import emailRoutes from './api/routes/emailRoutes.js';
@@ -19,11 +20,11 @@ import twilio from 'twilio';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Asegúrate de importar fileURLToPath
 import AWS from 'aws-sdk';
-import uploadRoutes from './api/routes/uploadRoutes.js';
+// import uploadRoutes from './api/routes/uploadRoutes.js';
 import smsRoutes from './api/routes/smsRoutes.js';
 import attendanceRoutes from './api/routes/attendanceRoutes.js';
 
-// import uploadRoutes from './api/routes/uploadRoutesS3.js';
+import uploadRoutesS3 from './api/routes/uploadRoutesS3.js';
 
 dotenv.config();
 const app = express();
@@ -51,9 +52,10 @@ app.use('/api/counter', counterRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/applications', applicationsRoutes);
 // app.use('/api/authApk', authApkRoutes);
-app.use('/api/authApk', uploadRoutes);
+app.use('/api/authApk', uploadRoutesS3);
 app.use('/api/sms', smsRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/chat', chatRoutes);
 
 // app.use('/api/counter', counterRoutes);  
 
