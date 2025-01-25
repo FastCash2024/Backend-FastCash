@@ -7,6 +7,7 @@ import {
   handleFileDelete,
   handleGetSignedUrl,
 } from '../controllers/uploadControllerS3.js';
+import {getFilterUsers, getFilterUsersApk, getFilterUsersApkFromWeb} from '../controllers/authApkController.js';
 
 const router = express.Router();
 
@@ -21,10 +22,11 @@ const upload = multer({
 // Rutas de S3
 router.post('/upload', upload.single('file'), handleFileUpload);
 router.post('/register', upload.array('files', 3), handleFileUploadMultiples);  // Permite hasta 10 archivos
-router.get('/:fileName', handleFileGet);
-router.delete('/:fileName', handleFileDelete);
-router.get('/signed-url/:fileName', handleGetSignedUrl);
-
+// router.get('/:fileName', handleFileGet);
+// router.delete('/:fileName', handleFileDelete);
+// router.get('/signed-url/:fileName', handleGetSignedUrl);
+router.get('/usersApk', getFilterUsersApk);
+router.get('/usersApkFromWeb', getFilterUsersApkFromWeb);
 
 
 export default router;

@@ -3,7 +3,6 @@ import { SmsModel } from "../models/smsModel.js";
 import { generateRandomCode } from "../utilities/generateCode.js";
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 import { SmsSendModel } from "../models/SmsCollection.js";
-import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 const checkUniqueCode = async (SmsModel, code) => {
   const existingCode = await SmsModel.findOne({ code });
