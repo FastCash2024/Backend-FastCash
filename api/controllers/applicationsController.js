@@ -71,19 +71,44 @@ export const register = async (req, res) => {
 // Login de usuario
 export const getApplications = async (req, res) => {
     try {
-        const application = await Application.find();
-        res.json(application);
+        const {nombre, categoria, limit = 5, page = 1} = req.query;
+    
+        const filter = {};
+        if (nombre) {
+            filter.nombre = { $regex: nombre, $options: "i" };
+        }
+        if (categoria) {
+            filter.categoria = { $regex: categoria, $options: "i" };
+        }
+
+        const totalDocuments = await Application.countDocuments(filter);
+
+        const totalPages = Math.ceil(totalDocuments / limit);
+
+        const applications = await Application.find(filter)
+            .limit(limit * 1)
+            .skip((page - 1) * parseInt(limit));
+
+        console.log("applications", applications)
+        res.json({
+            data: applications,
+            currentPage: parseInt(page),
+            totalPages,
+            totalDocuments,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-
-
-
-
-
-
-
-
-
+export const getCustomers = async (req, res) => {
+  try {
+    const result = await Application.distinct("nombre");
+    console.log("result", result);
+    res.json(result);
+  } catch (error) {
+    console.error("Error al obtener el flujo de clientes:", error);
+    res.status(500).json({ message: "Error al obtener el flujo de clientes." });
+    
+  }
+}

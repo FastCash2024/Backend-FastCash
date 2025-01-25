@@ -87,15 +87,24 @@ export const getAllUsers = async (req, res) => {
 
 export const getAllPersonalAccounts = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, page=1, limit=5 } = req.query;
     // Construcción dinámica del filtro
     const filter = {};
     if (email) {
       filter.email = { $regex: email, $options: "i" };
     }
-    const users = await UserPersonal.find(filter);
+
+    const totalDocuments = await UserPersonal.countDocuments(filter);
+
+    const totalPages = Math.ceil(totalDocuments/limit);
+    const users = await UserPersonal.find(filter).limit(parseInt(limit)).skip((parseInt(page)-1)*parseInt(limit));
     console.log(users)
-    res.json(users);
+    res.json({
+      data: users,
+      currentPage: parseInt(page),
+      totalPages,
+      totalDocuments,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
