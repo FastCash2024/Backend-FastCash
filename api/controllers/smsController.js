@@ -3,7 +3,6 @@ import { SmsModel } from "../models/smsModel.js";
 import { generateRandomCode } from "../utilities/generateCode.js";
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 import { SmsSendModel } from "../models/SmsCollection.js";
-import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 
 const checkUniqueCode = async (SmsModel, code) => {
   const existingCode = await SmsModel.findOne({ code });
@@ -171,13 +170,8 @@ export const sendCustomSMS = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-export const verificarSMS = async (req, res) => {
-  const { to, code } = req.body;
-=======
 export const verificarSMS2 = async (req, res) => {
-  const { telefono, code } = req.body;
->>>>>>> 278c8007af100e62eeb839612a3bb28646d12b55
+  const { to, code } = req.body;
 
   if (!to || !code) {
     return res

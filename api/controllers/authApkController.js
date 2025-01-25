@@ -137,16 +137,18 @@ export const signin = async (req, res) => {
 export const login = async (req, res) => {
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const getChatsUser = async (req, res) => {
+  try {
+    // Obtener todos los documentos de la colección
+    const forms = await FormModel.find({});
+    
+    // Enviar la respuesta con los datos
+    res.status(200).json(forms);
+  } catch (error) {
+    console.error("Error al obtener los formularios:", error);
+    res.status(500).json({
+      error: "Error al obtener los formularios",
+      details: error.message,
+    });
+  }
+};

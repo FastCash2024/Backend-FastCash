@@ -35,15 +35,13 @@ import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la rut
 //   }
 // };
 
-
-
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
   try {
     const { tipoDeGrupo, situacionLaboral, emailPersonal, limit = 5, page = 1 } = req.query;
-    // Construcción dinámica del filtro
+    
     const filter = {};
-    console.log("tipoDeGrupo: ", tipoDeGrupo);
+    
     if (tipoDeGrupo) {
       filter.tipoDeGrupo = { $regex: tipoDeGrupo, $options: "i" }; // Insensible a mayúsculas
     }
@@ -87,11 +85,23 @@ export const getAllUsers = async (req, res) => {
 
 export const getAllPersonalAccounts = async (req, res) => {
   try {
-    const { email, page=1, limit=5 } = req.query;
-    // Construcción dinámica del filtro
+    const { email, nombreCompleto, dni, numeroDeTelefonoMovil, page=1, limit=5 } = req.query;
+
     const filter = {};
     if (email) {
       filter.email = { $regex: email, $options: "i" };
+    }
+
+    if (nombreCompleto) {
+      filter.nombreCompleto = { $regex: nombreCompleto, $options: "i" };
+    }
+
+    if (dni) {
+      filter.dni = { $regex: dni, $options: "i" };
+    }
+
+    if (numeroDeTelefonoMovil) {
+      filter.numeroDeTelefonoMovil = { $regex: numeroDeTelefonoMovil, $options: "i" };
     }
 
     const totalDocuments = await UserPersonal.countDocuments(filter);
