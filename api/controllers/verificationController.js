@@ -135,6 +135,32 @@ export const getCreditById = async (req, res) => {
   }
 };
 
+// Obtener un crédito por número de teléfono
+export const getCreditByPhone = async (req, res) => {
+  try {
+    const numeroDeTelefonoMovil = req.query.numeroDeTelefonoMovil;
+    console.log("numeroDeTelefonoMovil", numeroDeTelefonoMovil);
+
+    if (!numeroDeTelefonoMovil) return res.status(404).json({ message: 'Número de teléfono no proporcionado' });
+
+    // Filtrar por número de teléfono
+    const filter = {
+      numeroDeTelefonoMovil: { $regex: numeroDeTelefonoMovil, $options: "i" } // Se busca en el campo correcto
+    };
+
+    // Buscar el crédito que coincida con el número de teléfono
+    const response = await VerificationCollection.find(filter);
+
+    if (!response || response.length === 0) {
+      return res.status(404).json({ message: 'Crédito no encontrado' });
+    }
+
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Actualizar un crédito
 export const updateCredit = async (req, res) => {
   console.log("req", req.body)
@@ -332,7 +358,7 @@ export const getReporteCDiario = async (req, res) => {
         $eq: [
           {
             $dateToString: {
-              format: '%d/%m/%Y', 
+              format: '%d/%m/%Y',
               date: { $toDate: '$fechaDeReembolso' },
             },
           },
@@ -343,7 +369,7 @@ export const getReporteCDiario = async (req, res) => {
 
     if (estadoDeCredito) {
       const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
-      filter.estadoDeCredito = { $in: palabras }; 
+      filter.estadoDeCredito = { $in: palabras };
     }
 
     const casosDelDia = await VerificationCollection.find(filter);

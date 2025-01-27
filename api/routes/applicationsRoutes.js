@@ -1,5 +1,5 @@
 import express from 'express';
-import { register,getApplications, getCustomers, deleteApplication, updateApplication, getApplicationsToApp } from '../controllers/applicationsController.js';
+import { register,getApplications, getCustomers,  deleteApplication, updateApplication, getApplicationsToApp } from '../controllers/applicationsController.js';
 import multer from 'multer';
 
 const router = express.Router();
