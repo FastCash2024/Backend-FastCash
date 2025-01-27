@@ -1,3 +1,4 @@
+import { LogContextImpl } from 'twilio/lib/rest/serverless/v1/service/environment/log.js';
 import VerificationCollection from '../models/VerificationCollection.js';
 import moment from 'moment';
 
@@ -242,108 +243,122 @@ export const getCustomerFlow = async (req, res) => {
   }
 };
 
-
 export const getReporteDiario = async (req, res) => {
   try {
     const { fecha, estadoDeCredito } = req.query;
     const today = fecha || moment().format('DD/MM/YYYY');
 
-    const filter = {};
-
-    if (today) {
-      filter.fechaDeTramitacionDelCaso = today;
-    }
-
-    if (estadoDeCredito) {
-      const palabras = estadoDeCredito.split(/[,?]/).map(palabra => palabra.trim());
-      filter.estadoDeCredito = palabras;
-    }
-
-    const casosDelDia = await VerificationCollection.find(filter);
-
-    if (casosDelDia.length === 0) {
-      return res.json({ data: [], message: `No se encontraron casos del día ${today} con el estado ${estadoDeCredito || 'N/A'}.` });
-    }
-
-    const resultado = casosDelDia.reduce((acc, caso) => {
-      caso.trackingDeOperaciones?.forEach(tracking => {
-        if (tracking.cuenta && tracking.fecha && tracking.modificacion) {
-          if (!acc[tracking.cuenta]) {
-            acc[tracking.cuenta] = {
-              aprobados10am: 0,
-              reprobados10am: 0,
-              aprobados12am: 0,
-              reprobados12am: 0,
-              aprobados14pm: 0,
-              reprobados14pm: 0,
-              aprobados16pm: 0,
-              reprobados16pm: 0,
-              aprobadosTotal: 0,
-              reprobadosTotal: 0
-            };
-          }
-          
-          const trackingDate = new Date(tracking.fecha);
-          if (isNaN(trackingDate)) {
-            console.error(`Fecha inválida: ${tracking.fecha}`);
-            return;
-          }
-          const hour = trackingDate.getUTCHours();
-
-          if (tracking.modificacion === "Aprobado") {
-            if (hour <= 10) acc[tracking.cuenta].aprobados10am += 1;
-            if (hour > 10 && hour <= 12) acc[tracking.cuenta].aprobados12am += 1;
-            if (hour > 12 && hour <= 14) acc[tracking.cuenta].aprobados14pm += 1;
-            if (hour > 14 && hour <= 16) acc[tracking.cuenta].aprobados16pm += 1;
-            acc[tracking.cuenta].aprobadosTotal += 1;
-          } else if (tracking.modificacion === "Reprobado") {
-            if (hour > 10 && hour <= 12) acc[tracking.cuenta].reprobados10am += 1;
-            if (hour <= 12) acc[tracking.cuenta].reprobados12am += 1;
-            if (hour > 12 && hour <= 14) acc[tracking.cuenta].reprobados14pm += 1;
-            if (hour > 14 && hour <= 16) acc[tracking.cuenta].reprobados16pm += 1;
-            acc[tracking.cuenta].reprobadosTotal += 1;
-          }
-        }
-      });
-      return acc;
-    }, {});
-
-    res.json({ data: resultado });
-  } catch (error) {
-    console.error('Error al obtener los datos de tracking:', error);
-    res.status(500).json({ message: 'Error al obtener los datos de tracking' });
-  }
-};
-
-export const getReporteCDiario = async (req, res) => {
-  try {
-    const { fecha, estadoDeCredito } = req.query;
-    const today = fecha || moment().format('DD/MM/YYYY');
-
-    const filter = {};
-
-    if (today) {
-      filter.fechaDeReembolso = today;
-    }
+    // Filtro para comparar la fecha formateada con el formato "DD/MM/YYYY"
+    const filter = {
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: '%d/%m/%Y',
+              date: { $toDate: '$fechaDeTramitacionDelCaso' },
+            },
+          },
+          today,
+        ],
+      },
+    };
 
     if (estadoDeCredito) {
-      const palabras = estadoDeCredito.split(/[,?]/).map(palabra => palabra.trim());
+      const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
       filter.estadoDeCredito = { $in: palabras };
     }
 
     const casosDelDia = await VerificationCollection.find(filter);
 
     if (casosDelDia.length === 0) {
-      return res.json({ 
-        data: {}, 
-        message: `No se encontraron casos del día ${today} con el estado ${estadoDeCredito || 'Pagado'}.` 
+      return res.json({
+        data: {},
+        message: `No se encontraron casos del día ${today} con el estado ${estadoDeCredito || 'N/A'}.`,
       });
     }
 
     const resultado = {};
 
-    casosDelDia.forEach(caso => {
-      const tipo = caso.cuentaCobrador || "Desconocido"; // Agrupar por "tipo" o un identificador similar
+    casosDelDia.forEach((caso) => {
+      const tipo = caso.cuentaVerificador || 'Desconocido';
+
+      if (!resultado[tipo]) {
+        resultado[tipo] = {
+          aprobados10am: 0,
+          reprobados10am: 0,
+          aprobados12am: 0,
+          reprobados12am: 0,
+          aprobados14pm: 0,
+          reprobados14pm: 0,
+          aprobados16pm: 0,
+          reprobados16pm: 0,
+          aprobadosTotal: 0,
+          reprobadosTotal: 0,
+        };
+      }
+
+      const hora = new Date(caso.fechaDeTramitacionDelCaso).getUTCHours();
+
+      if (caso.estadoDeCredito === 'Aprobado') {
+        if (hora <= 10) resultado[tipo].aprobados10am += 1;
+        if (hora > 10 && hora <= 12) resultado[tipo].aprobados12am += 1;
+        if (hora > 12 && hora <= 14) resultado[tipo].aprobados14pm += 1;
+        if (hora > 14 && hora <= 16) resultado[tipo].aprobados16pm += 1;
+        resultado[tipo].aprobadosTotal += 1; // Ajustado el cálculo correcto
+      } else if (caso.estadoDeCredito === 'Reprobado') {
+        if (hora <= 10) resultado[tipo].reprobados10am += 1;
+        if (hora > 10 && hora <= 12) resultado[tipo].reprobados12am += 1;
+        if (hora > 12 && hora <= 14) resultado[tipo].reprobados14pm += 1;
+        if (hora > 14 && hora <= 16) resultado[tipo].reprobados16pm += 1;
+        resultado[tipo].reprobadosTotal += 1; // Ajustado el cálculo correcto
+      }
+    });
+
+    res.json({ data: resultado });
+  } catch (error) {
+    console.error('Error al obtener el reporte diario:', error);
+    res.status(500).json({ message: 'Error al obtener los datos' });
+  }
+};
+
+
+export const getReporteCDiario = async (req, res) => {
+  try {
+    const { fecha, estadoDeCredito } = req.query;
+    const today = fecha || moment().format('DD/MM/YYYY'); // Fecha actual en formato 'DD/MM/YYYY'
+
+    const filter = {
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: '%d/%m/%Y', 
+              date: { $toDate: '$fechaDeReembolso' },
+            },
+          },
+          today,
+        ],
+      },
+    };
+
+    if (estadoDeCredito) {
+      const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
+      filter.estadoDeCredito = { $in: palabras }; 
+    }
+
+    const casosDelDia = await VerificationCollection.find(filter);
+
+    if (casosDelDia.length === 0) {
+      return res.json({
+        data: {},
+        message: `No se encontraron casos del día ${today} con el estado ${estadoDeCredito || 'Pagado'}.`,
+      });
+    }
+
+    const resultado = {};
+
+    casosDelDia.forEach((caso) => {
+      const tipo = caso.cuentaCobrador || 'Desconocido'; // Agrupar por cuentaCobrador o similar
       if (!resultado[tipo]) {
         resultado[tipo] = {
           pagos10am: 0,
@@ -362,7 +377,7 @@ export const getReporteCDiario = async (req, res) => {
           ptp6pm: 0,
           tasaRecuperacion6pm: 0,
           pagosTotal: 0,
-          tasaRecuperacionTotal: 0
+          tasaRecuperacionTotal: 0,
         };
       }
 
@@ -385,7 +400,7 @@ export const getReporteCDiario = async (req, res) => {
     });
 
     // Calcular tasas de recuperación por tipo
-    Object.keys(resultado).forEach(tipo => {
+    Object.keys(resultado).forEach((tipo) => {
       const data = resultado[tipo];
       data.tasaRecuperacion10am = data.pagos10am / (data.ptp10am || 1);
       data.tasaRecuperacion12am = data.pagos12am / (data.ptp12am || 1);
@@ -393,7 +408,8 @@ export const getReporteCDiario = async (req, res) => {
       data.tasaRecuperacion4pm = data.pagos4pm / (data.ptp4pm || 1);
       data.tasaRecuperacion6pm = data.pagos6pm / (data.ptp6pm || 1);
       data.tasaRecuperacionTotal =
-        data.pagosTotal / (data.ptp10am + data.ptp12am + data.ptp2pm + data.ptp4pm + data.ptp6pm || 1);
+        data.pagosTotal /
+        (data.ptp10am + data.ptp12am + data.ptp2pm + data.ptp4pm + data.ptp6pm || 1);
     });
 
     res.json({ data: resultado });
@@ -402,3 +418,4 @@ export const getReporteCDiario = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener los datos' });
   }
 };
+
