@@ -248,13 +248,12 @@ export const getReporteDiario = async (req, res) => {
     const { fecha, estadoDeCredito } = req.query;
     const today = fecha || moment().format('DD/MM/YYYY');
 
-    // Filtro para comparar la fecha formateada con el formato "DD/MM/YYYY"
     const filter = {
       $expr: {
         $eq: [
           {
             $dateToString: {
-              format: '%d/%m/%Y',
+              format: '%d/%m/%Y', 
               date: { $toDate: '$fechaDeTramitacionDelCaso' },
             },
           },
@@ -263,12 +262,14 @@ export const getReporteDiario = async (req, res) => {
       },
     };
 
+    console.log('Filtro:', filter);
     if (estadoDeCredito) {
       const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
       filter.estadoDeCredito = { $in: palabras };
     }
-
+    
     const casosDelDia = await VerificationCollection.find(filter);
+    console.log('casos del dia:', casosDelDia);
 
     if (casosDelDia.length === 0) {
       return res.json({
@@ -310,7 +311,7 @@ export const getReporteDiario = async (req, res) => {
         if (hora > 10 && hora <= 12) resultado[tipo].reprobados12am += 1;
         if (hora > 12 && hora <= 14) resultado[tipo].reprobados14pm += 1;
         if (hora > 14 && hora <= 16) resultado[tipo].reprobados16pm += 1;
-        resultado[tipo].reprobadosTotal += 1; // Ajustado el cálculo correcto
+        resultado[tipo].reprobadosTotal += 1;
       }
     });
 

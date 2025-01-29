@@ -34,7 +34,7 @@ export const getChat = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const mensajes = await ChatModel.find({subId})
-            .sort({createAt: -1})
+            .sort({fecha: -1})
             .skip(skip)
             .limit(Number(limit))
             .lean();
