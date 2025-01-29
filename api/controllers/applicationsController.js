@@ -6,7 +6,6 @@ export const register = async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded');
     }
-
     try {
         const {
             nombre,
@@ -25,9 +24,7 @@ export const register = async (req, res) => {
                 ...req.body,
                 icon: imgApp.Location
             });
-
             await application.save();
-
             res.status(201).json({
                 ...application,
             });

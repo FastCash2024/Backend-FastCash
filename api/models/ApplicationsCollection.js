@@ -3,43 +3,34 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
   nombre: {
     type: String,
-    required: true,
-    minlength: 3
   },
   valorPrestado: {
     type: String,
-    required: true,
-    minlength: 3
   },
   valorDepositoLiquido: {
     type: String,
-    required: true,
-    minlength: 3
   },
   interesTotal: {
     type: String,
-    required: true,
-    minlength: 1
   },
   interesDiario: {
     type: String,
-    required: true,
-    minlength: 1
+  },
+  valorPrestamoMenosInteres: {
+    type: String,
+  },
+  valorExtencion: {
+    type: String,
   },
   calificacion: {
     type: String,
-    required: true,
-    minlength: 3
   },
   icon: {
-    type: String,
-    required: true,
-    minlength: 3
+    type: String
   },
   categoria: {
     type: String,
-    required: true,
-    minlength: 3
+
   },
 }, {
   timestamps: true,
