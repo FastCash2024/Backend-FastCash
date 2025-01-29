@@ -24,9 +24,7 @@ export const register = async (req, res) => {
                 ...req.body,
                 icon: imgApp.Location
             });
-
             await application.save();
-
             res.status(201).json({
                 ...application,
             });

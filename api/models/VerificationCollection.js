@@ -37,6 +37,11 @@ const verificationCollectionSchema = new mongoose.Schema({
   clienteNuevo: String,
   valorSolicitado: Number,
   valorEnviado: Number,
+
+  valorPrestamoMenosInteres: Number,
+  valorExtencion: Number,
+
+
   registroDeNotas: String,
   nombreDelProducto: String,
   fechaDeReembolso: String,
