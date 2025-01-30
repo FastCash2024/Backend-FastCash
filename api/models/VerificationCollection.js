@@ -49,7 +49,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   fechaDeCreacionDeLaTarea: String,
   fechaDeTramitacionDelCaso: String,
   nombreDeLaEmpresa: String,
-
+  
   // Datos capturados del caso
   contactos: [ContactosSchema],
   sms: [SmsSchema],
@@ -69,7 +69,10 @@ const verificationCollectionSchema = new mongoose.Schema({
   // Asesor actual asignado
   asesor: String,
   emailAsesor: String,
+  estadoDeComunicacion: String,
+  fechaRegistroComunicacion: String,
 
+  acotacionesCobrador: [AcotacionSchema],
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
 }, {

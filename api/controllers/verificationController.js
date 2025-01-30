@@ -87,12 +87,25 @@ export const getAllCredits = async (req, res) => {
       filter.nombreDelProducto = { $regex: nombreDelProducto, $options: "i" };
     }
 
-    if (fechaDeReembolso || fechaDeCreacionDeLaTarea || fechaDeTramitacionDelCaso) {
-      // filter.fecha = {};
-      if (fechaDeReembolso) filter.fechaDeReembolso = new Date(fechaDeReembolso).toISOString().split('T')[0];
+    if (fechaDeCreacionDeLaTarea || fechaDeTramitacionDelCaso) {
       if (fechaDeCreacionDeLaTarea) filter.fechaDeCreacionDeLaTarea = new Date(fechaDeCreacionDeLaTarea).toISOString().split('T')[0];
       if (fechaDeTramitacionDelCaso) filter.fechaDeTramitacionDelCaso = new Date(fechaDeTramitacionDelCaso).toISOString().split('T')[0];
     }
+
+    if (fechaDeReembolso) {
+      console.log("fecha reembolso: ", fechaDeReembolso);
+      const fechas = fechaDeReembolso.split(",").map(f => f.trim());
+    
+      if (fechas.length === 2) {
+        filter.fechaDeReembolso = {
+          $gte: new Date(fechas[0]).toISOString().split("T")[0],
+          $lte: new Date(fechas[1]).toISOString().split("T")[0],
+        };
+      } else {
+        filter.fechaDeReembolso = new Date(fechaDeReembolso).toISOString().split("T")[0];
+      }
+    }
+    
 
     console.log("filter", filter);
 
@@ -167,6 +180,7 @@ export const updateCredit = async (req, res) => {
   try {
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedCredit) return res.status(404).json({ message: 'Crédito no encontrado' });
+    console.log("data update: ", updatedCredit);
     res.json(updatedCredit);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -352,25 +366,52 @@ export const getReporteDiario = async (req, res) => {
 export const getReporteCDiario = async (req, res) => {
   try {
     const { fecha, estadoDeCredito } = req.query;
-    const today = fecha || moment().format('DD/MM/YYYY'); // Fecha actual en formato 'DD/MM/YYYY'
+    const today = fecha || moment().format('DD/MM/YYYY');
 
+    // Crear el filtro con las condiciones separadas
     const filter = {
-      $expr: {
-        $eq: [
-          {
-            $dateToString: {
-              format: '%d/%m/%Y',
-              date: { $toDate: '$fechaDeReembolso' },
-            },
+      $or: [
+        {
+          // Filtrar casos con estadoDeCredito 'Pagado' según fechaDeReembolso
+          $expr: {
+            $eq: [
+              {
+                $dateToString: {
+                  format: '%d/%m/%Y',
+                  date: { $toDate: '$fechaDeReembolso' },
+                },
+              },
+              today,
+            ],
           },
-          today,
-        ],
-      },
+          estadoDeCredito: 'Pagado',
+        },
+        {
+          // Filtrar casos con estadoDeComunicacion 'Pagará pronto' según fechaRegistroComunicacion
+          $expr: {
+            $eq: [
+              {
+                $dateToString: {
+                  format: '%d/%m/%Y',
+                  date: { $toDate: '$fechaRegistroComunicacion' },
+                },
+              },
+              today,
+            ],
+          },
+          estadoDeComunicacion: 'Pagará pronto',
+        },
+      ],
     };
 
+    // Si se especifica estadoDeCredito, aplicar filtro adicional
     if (estadoDeCredito) {
       const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
-      filter.estadoDeCredito = { $in: palabras };
+      filter.$or.forEach((cond) => {
+        if (cond.estadoDeCredito) {
+          cond.estadoDeCredito = { $in: palabras };
+        }
+      });
     }
 
     const casosDelDia = await VerificationCollection.find(filter);
@@ -385,7 +426,7 @@ export const getReporteCDiario = async (req, res) => {
     const resultado = {};
 
     casosDelDia.forEach((caso) => {
-      const tipo = caso.cuentaCobrador || 'Desconocido'; // Agrupar por cuentaCobrador o similar
+      const tipo = caso.cuentaCobrador || 'Desconocido'; // Agrupar por cuentaCobrador
       if (!resultado[tipo]) {
         resultado[tipo] = {
           pagos10am: 0,
@@ -408,7 +449,9 @@ export const getReporteCDiario = async (req, res) => {
         };
       }
 
-      const hora = new Date(caso.fechaDeReembolso).getHours();
+      const fechaReferencia =
+        caso.estadoDeCredito === 'Pagado' ? caso.fechaDeReembolso : caso.fechaRegistroComunicacion;
+      const hora = new Date(fechaReferencia).getHours();
 
       if (caso.estadoDeCredito === 'Pagado') {
         if (hora <= 10) resultado[tipo].pagos10am += 1;
@@ -417,7 +460,7 @@ export const getReporteCDiario = async (req, res) => {
         if (hora > 14 && hora <= 16) resultado[tipo].pagos4pm += 1;
         if (hora > 16 && hora <= 18) resultado[tipo].pagos6pm += 1;
         resultado[tipo].pagosTotal += 1;
-      } else if (caso.estadoDeCredito === 'PTP') {
+      } else if (caso.estadoDeComunicacion === 'Pagará pronto') {
         if (hora <= 10) resultado[tipo].ptp10am += 1;
         if (hora > 10 && hora <= 12) resultado[tipo].ptp12am += 1;
         if (hora > 12 && hora <= 14) resultado[tipo].ptp2pm += 1;
@@ -426,7 +469,7 @@ export const getReporteCDiario = async (req, res) => {
       }
     });
 
-    // Calcular tasas de recuperación por tipo
+    // Calcular tasas de recuperación
     Object.keys(resultado).forEach((tipo) => {
       const data = resultado[tipo];
       data.tasaRecuperacion10am = data.pagos10am / (data.ptp10am || 1);
@@ -445,4 +488,3 @@ export const getReporteCDiario = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener los datos' });
   }
 };
-
