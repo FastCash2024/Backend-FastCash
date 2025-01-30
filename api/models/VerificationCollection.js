@@ -41,8 +41,8 @@ const verificationCollectionSchema = new mongoose.Schema({
   valorPrestamoMenosInteres: Number,
   valorExtencion: Number,
   icon: String,
-  
-  numeroDeTarjetaBancari: String,
+
+  numeroDeCuenta: String,
   nombreBanco: String,
 
   registroDeNotas: String,
