@@ -38,7 +38,7 @@ import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la rut
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
   try {
-    const { tipoDeGrupo, situacionLaboral, emailPersonal, limit = 5, page = 1 } = req.query;
+    const { nombrePersonal, cuenta, tipoDeGrupo, situacionLaboral, emailPersonal, limit = 5, page = 1 } = req.query;
     
     const filter = {};
     
@@ -49,6 +49,15 @@ export const getAllUsers = async (req, res) => {
     if (situacionLaboral) {
       filter.situacionLaboral = { $regex: situacionLaboral, $options: "i" }; // Insensible a mayúsculas
     }
+
+    if (nombrePersonal) {
+      filter.nombrePersonal = { $regex: nombrePersonal, $options: "i" }; // Insensible a mayúsculas
+    }
+
+    if (cuenta) {
+      filter.cuenta = { $regex: cuenta, $options: "i" }; // Insensible a mayúsculas
+    }
+
     if (emailPersonal) {
       filter.emailPersonal = { $regex: emailPersonal, $options: "i" };
     }

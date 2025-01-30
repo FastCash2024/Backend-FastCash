@@ -93,7 +93,7 @@ export const getFilterUsersApkFromWeb = async (req, res) => {
     const filter = {};
     if (phoneNumber) {
       // Buscar dentro de formData usando la notación de punto
-      filter["formData.phoneNumber"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
+      filter["formData.contacto"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
     }
 
     // Consulta a MongoDB con filtro dinámico
@@ -103,7 +103,7 @@ export const getFilterUsersApkFromWeb = async (req, res) => {
 
     // Respuesta
     if (users.length === 0) {
-      return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
+      return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro de contacto." });
     }
     if (users.length > 1) {
 
