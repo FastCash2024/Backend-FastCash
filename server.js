@@ -10,6 +10,7 @@ import authRoutes from './api/routes/auth.js';
 import otpRoutes from './api/routes/otpRoutes.js';
 import chatRoutes from './api/routes/chatRoutes.js';
 import HourEntryRoutes from './api/routes/HourEntryRoutes.js';
+import TrakingOperacionesDeCasosRoutes from './api/routes/TrakingOperacionesDeCasosRoutes.js';
 
 import authApkRoutes from './api/routes/authApk.js';
 import emailRoutes from './api/routes/emailRoutes.js';
@@ -58,6 +59,7 @@ app.use('/api/sms', smsRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/entryhour', HourEntryRoutes);
+app.use('/api/trkingoperaciones', TrakingOperacionesDeCasosRoutes);
 
 // app.use('/api/counter', counterRoutes);  
 

@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const ContactosSchema = new mongoose.Schema({
   name: String,
   phoneNumber: String
@@ -24,6 +23,17 @@ const TrackingDeOperacionesSchema = new mongoose.Schema({
   cuenta: String,
   asesor: String,
   emailAsesor: String,
+});
+
+const CuentasBancariasSchema = new mongoose.Schema({
+  nombreDeBanco: String,
+  numeroDeCuenta: String,
+  estadoDeCuenta: {
+    type: String,
+    enum: ['Activo', 'Bloqueado'],
+    default: 'Activo',
+  },
+  acotacion: String,
 });
 
 const verificationCollectionSchema = new mongoose.Schema({
@@ -75,6 +85,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   acotacionesCobrador: [AcotacionSchema],
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
+  cuentasBancarias: [CuentasBancariasSchema],
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'
