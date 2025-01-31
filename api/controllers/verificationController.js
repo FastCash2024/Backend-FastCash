@@ -180,12 +180,38 @@ export const updateCredit = async (req, res) => {
   try {
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedCredit) return res.status(404).json({ message: 'Crédito no encontrado' });
-    console.log("data update: ", updatedCredit);
     res.json(updatedCredit);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
+// actualizar credito aprobado 
+export const updateCreditAprobado = async (req, res) => {
+  
+  try {
+    const updatedCredit = await VerificationCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    if (!updatedCredit) {
+      return res.status(404).json({ message: 'Crédito no encontrado' });
+    }
+
+    if (updatedCredit.estadoDeCredito === "Aprobado") {
+      return res.json({
+        _id: updatedCredit._id,
+        estadoDeCredito: updatedCredit.estadoDeCredito,
+        numeroDeCuenta: updatedCredit.numeroDeCuenta,
+        nombreBanco: updatedCredit.nombreBanco
+      });
+    }
+
+    res.json(updatedCredit);
+
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 
 // Eliminar un crédito
 export const deleteCredit = async (req, res) => {
@@ -488,3 +514,29 @@ export const getReporteCDiario = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener los datos' });
   }
 };
+
+export const getUpdateSTP = async (req, res) => {
+  try {
+    const credit = await VerificationCollection.findOne({ idDeSubFactura: req.params.idDeSubFactura });
+
+    if (!credit) {
+      console.log("No encontrado en la base de datos.");
+      return res.status(404).json({ message: 'Crédito no encontrado' });
+    }
+
+    const creditData = credit.toObject();
+
+    creditData.contactos = [];
+    creditData.sms = [];
+    creditData.acotacionesCobrador = [];
+    creditData.acotaciones = [];
+    creditData.trackingDeOperaciones = [];
+    creditData.cuentasBancarias = [];
+
+    res.json(creditData);
+  } catch (error) {
+    console.error("Error en getUpdateSTP:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+

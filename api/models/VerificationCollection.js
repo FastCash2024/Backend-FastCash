@@ -1,40 +1,24 @@
-import mongoose from 'mongoose';
+const StdDispersionSchema = new mongoose.Schema({
+  success: Boolean,
+  response: {
+    resultado: {
+      descripcionError: String,
+      id: Number,
+      data: {
+        fechaOperacion: Number,
+        institucionOperante: Number,
+        claveRastreo: String,
+        claveRastreoDevolucion: String,
+        empresa: String,
+        monto: Number,
+        digit01IdentificadorBeneficiario: Number,
+        medioEntrega: String,
+        firma: String
+      }
+    }
+  }
+}, { _id: false });
 
-const ContactosSchema = new mongoose.Schema({
-  name: String,
-  phoneNumber: String
-});
-const SmsSchema = new mongoose.Schema({
-  sender: String,
-  body: String,
-});
-const AcotacionSchema = new mongoose.Schema({
-  acotacion: String,
-  cuenta: String,
-  asesor: String,
-  emailAsesor: String,
-  fecha: String,
-});
-const TrackingDeOperacionesSchema = new mongoose.Schema({
-  operacion: String,
-  modificacion: String,
-  fecha: String,
-
-  cuenta: String,
-  asesor: String,
-  emailAsesor: String,
-});
-
-const CuentasBancariasSchema = new mongoose.Schema({
-  nombreDeBanco: String,
-  numeroDeCuenta: String,
-  estadoDeCuenta: {
-    type: String,
-    enum: ['Activo', 'Bloqueado'],
-    default: 'Activo',
-  },
-  acotacion: String,
-});
 
 const verificationCollectionSchema = new mongoose.Schema({
   // ----------DATOS DE TABLA --------Recolección y Validación de Datos
@@ -47,14 +31,11 @@ const verificationCollectionSchema = new mongoose.Schema({
   clienteNuevo: String,
   valorSolicitado: Number,
   valorEnviado: Number,
-
   valorPrestamoMenosInteres: Number,
   valorExtencion: Number,
   icon: String,
-
   numeroDeCuenta: String,
   nombreBanco: String,
-
   registroDeNotas: String,
   nombreDelProducto: String,
   fechaDeReembolso: String,
@@ -88,6 +69,9 @@ const verificationCollectionSchema = new mongoose.Schema({
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
   cuentasBancarias: [CuentasBancariasSchema],
+
+  // Nodo stdDispersionModel
+  stdDispersionModel: [StdDispersionSchema]
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'

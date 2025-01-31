@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCredit, getAllCredits, getCreditById, getCreditByPhone, updateCredit, deleteCredit, getCustomerFlow, getReporteDiario, getReporteCDiario } from '../controllers/verificationController.js';
+import { createCredit, getAllCredits, getCreditById, getCreditByPhone, updateCredit, deleteCredit, getCustomerFlow, getReporteDiario, getReporteCDiario, getUpdateSTP, updateCreditAprobado } from '../controllers/verificationController.js';
 
 const router = express.Router();
 
@@ -11,7 +11,9 @@ router.get('/reportecobrados', getReporteCDiario);
 router.get('/customer', getCustomerFlow);
 router.get('/phone', getCreditByPhone);
 router.get('/:id', getCreditById);
+router.get('/updateSTP/:idDeSubFactura', getUpdateSTP);
 router.put('/:id', updateCredit);
+router.put('/creditoaprobado/:id', updateCreditAprobado);
 router.delete('/:id', deleteCredit);
 
 export default router;
