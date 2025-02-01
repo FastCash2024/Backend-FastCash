@@ -225,34 +225,59 @@ const enviarSolicitudAprobacion = async (credit) => {
     console.error("Error al enviar solicitud a STP:", error);
   }
 }
-// actualizar credito aprobado 
+
 export const updateCreditoAprobado = async (req, res) => {
   try {
-    // Actualiza el crédito en la base de datos
+
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
-    // console.log("updatedCredit", updatedCredit);
+
     if (!updatedCredit) {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
     if (updatedCredit.estadoDeCredito === "Aprobado") {
-      const dispersionData = await enviarSolicitudAprobacion(updatedCredit);
-      if (dispersionData) {
+      try {
+        const dispersionData = await enviarSolicitudAprobacion({
+          _id: updatedCredit._id,
+          estadoDeCredito: updatedCredit.estadoDeCredito,
+          numeroDeCuenta: updatedCredit.numeroDeCuenta,
+          nombreBanco: updatedCredit.nombreBanco,
+        });
+
+        if (!dispersionData || dispersionData.error) {
+          return res.status(500).json({
+            message: "Error en la solicitud de aprobación",
+            error: dispersionData?.error || "Error desconocido",
+          });
+        }
+
         updatedCredit.stdDispersion = dispersionData;
         await updatedCredit.save();
+      } catch (error) {
+        console.error("Error en la solicitud de aprobación:", error);
+        return res.status(500).json({ message: "Error en la solicitud de aprobación", error: error.message });
       }
     }
 
-    return res.json(updatedCredit);
+    return res.json({
+      ...updatedCredit.toObject(),
+      contactos: [],
+      sms: [],
+      acotacionesCobrador: [],
+      acotaciones: [],
+      trackingDeOperaciones: [],
+      cuentasBancarias: [],
+    });
   } catch (error) {
     console.error("Error en updateCreditoAprobado:", error);
     res.status(400).json({ message: error.message });
   }
 };
+
 
 
 // Eliminar un crédito
