@@ -103,7 +103,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
   cuentasBancarias: [CuentasBancariasSchema],
-  stdDispersionModel: StdDispersionSchema
+  stdDispersion: StdDispersionSchema
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'

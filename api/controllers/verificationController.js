@@ -1,6 +1,6 @@
-import { LogContextImpl } from 'twilio/lib/rest/serverless/v1/service/environment/log.js';
 import VerificationCollection from '../models/VerificationCollection.js';
 import moment from 'moment';
+import { formatFechaYYYYMMDD } from '../utilities/currentWeek.js';
 
 function generarSecuencia(count) {
   let base = 15 + Math.floor(Math.floor(count / 999999)) * 1;
@@ -195,10 +195,12 @@ const enviarSolicitudAprobacion = async (credit) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        _id: credit._id,
+        idDeSubFactura: credit.idDeSubFactura,
         estadoDeCredito: credit.estadoDeCredito,
+        nombreDelCliente: credit.nombreDelCliente,
         numeroDeCuenta: credit.numeroDeCuenta,
         nombreBanco: credit.nombreBanco,
-        id: credit._id,
       }),
     });
 
@@ -232,7 +234,7 @@ export const updateCreditoAprobado = async (req, res) => {
       req.body,
       { new: true }
     );
-    console.log("updatedCredit", updatedCredit);
+    // console.log("updatedCredit", updatedCredit);
     if (!updatedCredit) {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
@@ -557,13 +559,15 @@ export const getReporteCDiario = async (req, res) => {
 
 export const getUpdateSTP = async (req, res) => {
   try {
-    const credit = await VerificationCollection.findOne({ idDeSubFactura: req.params.idDeSubFactura });
+    const credit = await VerificationCollection.findOne({
+      idDeSubFactura: req.params.idDeSubFactura,
+    });
 
     if (!credit) {
       console.log("No encontrado en la base de datos.");
-      return res.status(404).json({ message: 'Crédito no encontrado' });
+      return res.status(404).json({ message: "Crédito no encontrado" });
     }
-
+    
     const creditData = credit.toObject();
 
     creditData.contactos = [];
@@ -573,10 +577,14 @@ export const getUpdateSTP = async (req, res) => {
     creditData.trackingDeOperaciones = [];
     creditData.cuentasBancarias = [];
 
+    creditData.stdDispersion = {};
+
+    if (creditData.fechaDeTramitacionDelCaso) {
+      creditData.fechaDeTramitacionDelCaso = formatFechaYYYYMMDD(creditData.fechaDeTramitacionDelCaso);
+    }
     res.json(creditData);
   } catch (error) {
     console.error("Error en getUpdateSTP:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
