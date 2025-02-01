@@ -38,23 +38,17 @@ const CuentasBancariasSchema = new mongoose.Schema({
 
 const StdDispersionSchema = new mongoose.Schema({
   success: Boolean,
-  response: {
-    resultado: {
-      descripcionError: String,
-      id: Number,
-      data: {
-        fechaOperacion: Number,
-        institucionOperante: Number,
-        claveRastreo: String,
-        claveRastreoDevolucion: String,
-        empresa: String,
-        monto: Number,
-        digit01IdentificadorBeneficiario: Number,
-        medioEntrega: String,
-        firma: String
-      }
-    }
-  }
+  descripcionError: String,
+  id: Number,
+  fechaOperacion: Number,
+  institucionOperante: Number,
+  claveRastreo: String,
+  claveRastreoDevolucion: String,
+  empresa: String,
+  monto: Number,
+  digitoIdentificadorBeneficiario: Number,
+  medioEntrega: String,
+  firma: String
 }, { _id: false });
 
 const verificationCollectionSchema = new mongoose.Schema({
@@ -109,7 +103,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
   cuentasBancarias: [CuentasBancariasSchema],
-  stdDispersionModel: [StdDispersionSchema]
+  stdDispersionModel: StdDispersionSchema
 }, {
   timestamps: true,
   collection: 'recoleccionYValidacionDeDatos'

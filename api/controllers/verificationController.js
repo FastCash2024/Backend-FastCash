@@ -95,7 +95,7 @@ export const getAllCredits = async (req, res) => {
     if (fechaDeReembolso) {
       console.log("fecha reembolso: ", fechaDeReembolso);
       const fechas = fechaDeReembolso.split(",").map(f => f.trim());
-    
+
       if (fechas.length === 2) {
         filter.fechaDeReembolso = {
           $gte: new Date(fechas[0]).toISOString().split("T")[0],
@@ -105,7 +105,7 @@ export const getAllCredits = async (req, res) => {
         filter.fechaDeReembolso = new Date(fechaDeReembolso).toISOString().split("T")[0];
       }
     }
-    
+
 
     console.log("filter", filter);
 
@@ -186,28 +186,68 @@ export const updateCredit = async (req, res) => {
   }
 };
 
-// actualizar credito aprobado 
-export const updateCreditAprobado = async (req, res) => {
-  
+const enviarSolicitudAprobacion = async (credit) => {
+  const url = "https://stp.fastcash-mx.com/api/registar-orden-pago";
   try {
-    const updatedCredit = await VerificationCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        estadoDeCredito: credit.estadoDeCredito,
+        numeroDeCuenta: credit.numeroDeCuenta,
+        nombreBanco: credit.nombreBanco,
+        id: credit._id,
+      }),
+    });
 
+    const data = await response.json();
+    console.log("Respuesta de la API:", data);
+
+    return {
+      success: data.success,
+      descripcionError: data.response?.resultado?.descripcionError || null,
+      id: data.response?.resultado?.id || null,
+      fechaOperacion: data.response?.data?.fechaoperacion || null,
+      institucionOperante: data.response?.data?.institucionoperante || null,
+      claveRastreo: data.response?.data?.claveRastreo || null,
+      claveRastreoDevolucion: data.response?.data?.claveRastreoDevolucion || null,
+      empresa: data.response?.data?.empresa || null,
+      monto: data.response?.data?.monto || null,
+      digitoIdentificadorBeneficiario: data.response?.data?.digit01IdentificadorBeneficiario || null,
+      medioEntrega: data.response?.data?.medioEntrega || null,
+      firma: data.response?.data?.firma || null,
+    };
+  } catch (error) {
+    console.error("Error al enviar solicitud a STP:", error);
+  }
+}
+// actualizar credito aprobado 
+export const updateCreditoAprobado = async (req, res) => {
+  try {
+    // Actualiza el crédito en la base de datos
+    const updatedCredit = await VerificationCollection.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    console.log("updatedCredit", updatedCredit);
     if (!updatedCredit) {
-      return res.status(404).json({ message: 'Crédito no encontrado' });
+      return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
     if (updatedCredit.estadoDeCredito === "Aprobado") {
-      return res.json({
-        _id: updatedCredit._id,
-        estadoDeCredito: updatedCredit.estadoDeCredito,
-        numeroDeCuenta: updatedCredit.numeroDeCuenta,
-        nombreBanco: updatedCredit.nombreBanco
-      });
+      const dispersionData = await enviarSolicitudAprobacion(updatedCredit);
+      if (dispersionData) {
+        updatedCredit.stdDispersion = dispersionData;
+        await updatedCredit.save();
+      }
     }
 
-    res.json(updatedCredit);
-
+    return res.json(updatedCredit);
   } catch (error) {
+    console.error("Error en updateCreditoAprobado:", error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -319,7 +359,7 @@ export const getReporteDiario = async (req, res) => {
         $eq: [
           {
             $dateToString: {
-              format: '%d/%m/%Y', 
+              format: '%d/%m/%Y',
               date: { $toDate: '$fechaDeTramitacionDelCaso' },
             },
           },
@@ -333,7 +373,7 @@ export const getReporteDiario = async (req, res) => {
       const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
       filter.estadoDeCredito = { $in: palabras };
     }
-    
+
     const casosDelDia = await VerificationCollection.find(filter);
     console.log('casos del dia:', casosDelDia);
 
