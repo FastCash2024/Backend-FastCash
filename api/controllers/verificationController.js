@@ -152,7 +152,7 @@ export const getCreditById = async (req, res) => {
 export const getCreditByPhone = async (req, res) => {
   try {
     const numeroDeTelefonoMovil = req.query.numeroDeTelefonoMovil;
-    console.log("numeroDeTelefonoMovil", numeroDeTelefonoMovil);
+    console.log("numeroDeTelefonoMovil: ", numeroDeTelefonoMovil);
 
     if (!numeroDeTelefonoMovil) return res.status(404).json({ message: 'Número de teléfono no proporcionado' });
 
@@ -170,6 +170,7 @@ export const getCreditByPhone = async (req, res) => {
 
     res.json(response);
   } catch (error) {
+    console.error("Error al obtener crédito por número de teléfono:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -205,7 +206,7 @@ const enviarSolicitudAprobacion = async (credit) => {
     });
 
     const data = await response.json();
-    console.log("Respuesta de la API:", data);
+    console.log("Respuesta de la API:", data.error);
 
     return {
       success: data.success,

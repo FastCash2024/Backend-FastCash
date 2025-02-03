@@ -76,6 +76,8 @@ const verificationCollectionSchema = new mongoose.Schema({
   fechaDeCreacionDeLaTarea: String,
   fechaDeTramitacionDelCaso: String,
   nombreDeLaEmpresa: String,
+  cantidadDispersada: String,
+  fechaDeDispersion: String,
   
   // Datos capturados del caso
   contactos: [ContactosSchema],
