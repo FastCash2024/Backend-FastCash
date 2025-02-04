@@ -25,16 +25,16 @@ const TrackingDeOperacionesSchema = new mongoose.Schema({
   emailAsesor: String,
 });
 
-const CuentasBancariasSchema = new mongoose.Schema({
-  nombreDeBanco: String,
-  numeroDeCuenta: String,
-  estadoDeCuenta: {
-    type: String,
-    enum: ['Activo', 'Bloqueado'],
-    default: 'Activo',
-  },
-  acotacion: String,
-});
+// const CuentasBancariasSchema = new mongoose.Schema({
+//   nombreDeBanco: String,
+//   numeroDeCuenta: String,
+//   estadoDeCuenta: {
+//     type: String,
+//     enum: ['Activo', 'Bloqueado'],
+//     default: 'Activo',
+//   },
+//   acotacion: String,
+// });
 
 const StdDispersionSchema = new mongoose.Schema({
   success: Boolean,
@@ -104,7 +104,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   acotacionesCobrador: [AcotacionSchema],
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
-  cuentasBancarias: [CuentasBancariasSchema],
+  // cuentasBancarias: [CuentasBancariasSchema],
   stdDispersion: StdDispersionSchema
 }, {
   timestamps: true,

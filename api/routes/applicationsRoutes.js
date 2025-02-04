@@ -1,5 +1,5 @@
 import express from 'express';
-import { register,getApplications, getCustomers,  deleteApplication, updateApplication, getApplicationsToApp } from '../controllers/applicationsController.js';
+import { register,getApplications, getCustomers,  deleteApplication, updateApplication, getApplicationsToApp, addTipoApplication, updateTipoApplication, deleteTipoApplication, getApplicationsById } from '../controllers/applicationsController.js';
 import multer from 'multer';
 
 const router = express.Router();
@@ -17,6 +17,11 @@ router.delete('/delete/:id', deleteApplication);
 // router.post('/register', register);
 router.get('/getApplications', getApplications);
 router.get('/getApplicationsToApp', getApplicationsToApp);
+router.get('/aplicationbyid/:id', getApplicationsById);
 router.get('/customers', getCustomers);
+// tipos aplicacion
+router.post('/addtipoaplicacion/:id', addTipoApplication);
+router.put('/updatetipoaplicacion/:id/:tipo', updateTipoApplication);
+router.delete('/deletetipoaplicacion/:id/:tipo', deleteTipoApplication);
 
 export default router;

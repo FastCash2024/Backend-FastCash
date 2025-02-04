@@ -8,10 +8,22 @@ const ImageSchema = new mongoose.Schema({
     path: String
 });
 
+const CuentasBancariasSchema = new mongoose.Schema({
+    nombreDeBanco: String,
+    numeroDeCuenta: String,
+    estadoDeCuenta: {
+      type: String,
+      enum: ['Activo', 'Bloqueado'],
+      default: 'Activo',
+    },
+    acotacion: String,
+  });
+
 const FormSchema = new mongoose.Schema({
     celular: String,
     formData: Object, // Puedes ajustar este tipo según los campos de tu formulario
     images: [String],
+    cuentasBancarias: [CuentasBancariasSchema],
     createdAt: { type: Date, default: Date.now }
 }, {
     timestamps: true,
