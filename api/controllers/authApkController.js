@@ -140,15 +140,36 @@ export const login = async (req, res) => {
 export const getChatsUser = async (req, res) => {
   try {
     const {
+      nombreCompleto,
       limit = 5,
       page = 1
     } = req.query;
 
-    const forms = await FormModel.find({}, 'formData.nombres formData.apellidos formData.contacto formData.sms')
+    const filter = {};
+
+    if (nombreCompleto) {
+      const regex = new RegExp(nombreCompleto, "i");
+      const [nombre, apellido] = nombreCompleto.split(" ");
+
+      if (!apellido) {
+        filter.$or = [
+          { "formData.nombres": regex },
+          { "formData.apellidos": regex },
+        ];
+      } else {
+        filter.$and = [
+          { "formData.nombres": new RegExp(nombre, "i") },
+          { "formData.apellidos": new RegExp(apellido, "i") },
+        ];
+      }
+    }
+
+
+    const forms = await FormModel.find(filter, 'formData.nombres formData.apellidos formData.contacto formData.sms')
       .skip((parseInt(page) - 1) * parseInt(limit))  // Paginación
       .limit(parseInt(limit));  // Límite
 
-    const totalDocuments = await FormModel.countDocuments();
+    const totalDocuments = await FormModel.countDocuments(filter);
 
     const totalPages = Math.ceil(totalDocuments / limit);
 
