@@ -20,7 +20,7 @@ const MultaSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    fechadeOperacion: {
+    fechaDeOperacion: {
         type: String,
         required: true
     },

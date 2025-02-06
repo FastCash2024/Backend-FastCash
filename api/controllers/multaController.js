@@ -2,14 +2,14 @@ import MultaCollection from "../models/MultaCollection.js";
 
 export const addMulta = async (req, res) => {
     try {
-        const { userId, importeMulta, cuentaOperativa, cuentaPersonal, fechadeOperacion, fechaDeAuditoria } = req.body;
+        const { userId, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria } = req.body;
 
         const nuevaMulta = new MultaCollection({
             userId,
             importeMulta,
             cuentaOperativa,
             cuentaPersonal,
-            fechadeOperacion,
+            fechaDeOperacion,
             fechaDeAuditoria
         });
 
@@ -23,7 +23,7 @@ export const addMulta = async (req, res) => {
 export const editMulta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId, importeMulta, cuentaOperativa, cuentaPersonal, fechadeOperacion, fechaDeAuditoria } = req.body;
+        const { userId, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria } = req.body;
 
         const multa = await MultaCollection.findById(id);
         if (!multa) {
@@ -34,7 +34,7 @@ export const editMulta = async (req, res) => {
         multa.importeMulta = importeMulta;
         multa.cuentaOperativa = cuentaOperativa;
         multa.cuentaPersonal = cuentaPersonal;
-        multa.fechadeOperacion = fechadeOperacion;
+        multa.fechaDeOperacion = fechaDeOperacion;
         multa.fechaDeAuditoria = fechaDeAuditoria;
 
         await multa.save();
@@ -77,8 +77,45 @@ export const getMultaById = async (req, res) => {
 
 export const getAllMultas = async (req, res) => {
     try {
-        const multas = await MultaCollection.find();
-        res.status(200).json(multas);
+        const { cuentaOperativa, cuentaPersonal, fechaInicioOperacion, fechaFinOperacion, fechaInicioAuditoria, fechaFinAuditoria, page = 1, limit = 10 } = req.query;
+
+        const limitInt = parseInt(limit, 10);
+        const pageInt = parseInt(page, 10);
+
+        const filter = {};
+        if (cuentaOperativa) {
+            filter.cuentaOperativa = cuentaOperativa;
+        }
+        if (cuentaPersonal) {
+            filter.cuentaPersonal = cuentaPersonal;
+        }
+        if (fechaInicioOperacion && fechaFinOperacion) {
+            filter.fechaDeOperacion = {
+                $gte: new Date(fechaInicioOperacion),
+                $lte: new Date(fechaFinOperacion)
+            };
+        }
+        if (fechaInicioAuditoria && fechaFinAuditoria) {
+            filter.fechaDeAuditoria = {
+                $gte: new Date(fechaInicioAuditoria),
+                $lte: new Date(fechaFinAuditoria)
+            };
+        }
+
+        const totalDocuments = await MultaCollection.countDocuments(filter);
+
+        const multas = await MultaCollection.find(filter)
+            .skip((pageInt - 1) * limitInt)
+            .limit(limitInt);
+
+        const totalPages = Math.ceil(totalDocuments / limitInt);
+
+        res.status(200).json({
+            data: multas,
+            currentPage: pageInt,
+            totalPages,
+            totalDocuments
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener las multas', details: error.message });
     }
