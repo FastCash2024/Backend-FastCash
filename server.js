@@ -28,6 +28,7 @@ import multaRoutes from './api/routes/multaRoutes.js';
 import attendanceRoutes from './api/routes/attendanceRoutes.js';
 
 import uploadRoutesS3 from './api/routes/uploadRoutesS3.js';
+import newslaterRoutes from './api/routes/newslaterRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -62,6 +63,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/entryhour', HourEntryRoutes);
 app.use('/api/trkingoperaciones', TrakingOperacionesDeCasosRoutes);
 app.use('/api/multas', multaRoutes);
+app.use('/api/newsletter', newslaterRoutes);
 
 // app.use('/api/counter', counterRoutes);  
 
