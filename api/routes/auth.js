@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, registerPersonal, loginPersonal, updateUser,updateUserPersonal, getUsersWithFilters, getProfileWithToken} from '../controllers/authController.js';
+import { register, login, registerPersonal, loginPersonal, updateUser,updateUserPersonal, getUsersWithFilters, getProfileWithToken } from '../controllers/authController.js';
 import { getAllUsers, getAllPersonalAccounts} from '../controllers/accessController.js';
 import multer from 'multer';
 
@@ -28,8 +28,8 @@ router.put('/registerPersonal/:userId', upload.single('file'), updateUserPersona
 router.get('/personalAccounts',  getAllPersonalAccounts);
 router.get('/usersFilter', getUsersWithFilters);
 
-
-
+// user with data of accounts 
+// router.get('/usersAccounts', getUsersWithAccounts);
 
 
 export default router;

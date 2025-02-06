@@ -497,6 +497,45 @@ export const loginVerificacion = async (req, res) => {
     }
 };
 
+// export const getUsersWithAccounts = async (req, res) => {
+//   try {
+//     const { page = 1, limit = 10 } = req.query;
 
+//     const limitInt = parseInt(limit, 10);
+//     const pageInt = parseInt(page, 10);
 
+//     // Buscar todos los usuarios en UserPersonal
+//     const userPersonals = await UserPersonal.find();
+//     const userPersonalsEmails = userPersonals.map(user => user.email);
+
+//     // Buscar todos los usuarios en User que coincidan con los emails de UserPersonal
+//     const users = await User.find({ emailPersonal: { $in: userPersonalsEmails } });
+
+//     // Combinar los datos
+//     const combinedData = userPersonals.map(userPersonal => {
+//       const user = users.find(u => u.emailPersonal === userPersonal.email);
+//       return {
+//         cuenta: userPersonal.cuenta,
+//         email: userPersonal.email,
+//         numeroDeTelefonoMovil: userPersonal.numeroDeTelefonoMovil,
+//         cuentaUser: user ? user.cuenta : null,
+//         updatedAt: user ? user.updatedAt : null
+//       };
+//     });
+
+//     // Paginación
+//     const totalDocuments = combinedData.length;
+//     const totalPages = Math.ceil(totalDocuments / limitInt);
+//     const paginatedData = combinedData.slice((pageInt - 1) * limitInt, pageInt * limitInt);
+
+//     res.status(200).json({
+//       data: paginatedData,
+//       currentPage: pageInt,
+//       totalPages,
+//       totalDocuments
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error al obtener los datos del usuario', details: error.message });
+//   }
+// };
 

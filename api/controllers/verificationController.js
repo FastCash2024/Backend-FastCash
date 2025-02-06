@@ -456,7 +456,6 @@ export const getReporteDiario = async (req, res) => {
   }
 };
 
-
 export const getReporteCDiario = async (req, res) => {
   try {
     const { fecha, estadoDeCredito } = req.query;
@@ -466,34 +465,46 @@ export const getReporteCDiario = async (req, res) => {
     const filter = {
       $or: [
         {
-          // Filtrar casos con estadoDeCredito 'Pagado' según fechaDeReembolso
-          $expr: {
-            $eq: [
-              {
-                $dateToString: {
-                  format: '%d/%m/%Y',
-                  date: { $toDate: '$fechaDeReembolso' },
-                },
+          // Filtrar casos con estadoDeCredito 'Pagado' o 'Pagado con Extensión' según fechaDeReembolso
+          $and: [
+            {
+              $expr: {
+                $eq: [
+                  {
+                    $dateToString: {
+                      format: '%d/%m/%Y',
+                      date: { $toDate: '$fechaDeReembolso' },
+                    },
+                  },
+                  today,
+                ],
               },
-              today,
-            ],
-          },
-          estadoDeCredito: 'Pagado',
+            },
+            {
+              estadoDeCredito: { $in: ['Pagado', 'Pagado con Extensión'] },
+            },
+          ],
         },
         {
           // Filtrar casos con estadoDeComunicacion 'Pagará pronto' según fechaRegistroComunicacion
-          $expr: {
-            $eq: [
-              {
-                $dateToString: {
-                  format: '%d/%m/%Y',
-                  date: { $toDate: '$fechaRegistroComunicacion' },
-                },
+          $and: [
+            {
+              $expr: {
+                $eq: [
+                  {
+                    $dateToString: {
+                      format: '%d/%m/%Y',
+                      date: { $toDate: '$fechaRegistroComunicacion' },
+                    },
+                  },
+                  today,
+                ],
               },
-              today,
-            ],
-          },
-          estadoDeComunicacion: 'Pagará pronto',
+            },
+            {
+              estadoDeComunicacion: 'Pagará pronto',
+            },
+          ],
         },
       ],
     };
@@ -502,13 +513,16 @@ export const getReporteCDiario = async (req, res) => {
     if (estadoDeCredito) {
       const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
       filter.$or.forEach((cond) => {
-        if (cond.estadoDeCredito) {
-          cond.estadoDeCredito = { $in: palabras };
+        if (cond[1] && cond[1].estadoDeCredito) {
+          cond[1].estadoDeCredito = { $in: palabras };
         }
       });
     }
 
     const casosDelDia = await VerificationCollection.find(filter);
+
+    console.log("casos del dia: ", casosDelDia.length);
+    console.log("casos del dia: ", casosDelDia);
 
     if (casosDelDia.length === 0) {
       return res.json({
@@ -544,16 +558,36 @@ export const getReporteCDiario = async (req, res) => {
       }
 
       const fechaReferencia =
-        caso.estadoDeCredito === 'Pagado' ? caso.fechaDeReembolso : caso.fechaRegistroComunicacion;
+        caso.estadoDeCredito === 'Pagado' || caso.estadoDeCredito === 'Pagado con Extensión'
+          ? caso.fechaDeReembolso
+          : caso.fechaRegistroComunicacion;
       const hora = new Date(fechaReferencia).getHours();
+      const monto = parseFloat(caso.valorSolicitado || 0);
+      console.log("Hora: ", hora);
 
-      if (caso.estadoDeCredito === 'Pagado') {
-        if (hora <= 10) resultado[tipo].pagos10am += 1;
-        if (hora > 10 && hora <= 12) resultado[tipo].pagos12am += 1;
-        if (hora > 12 && hora <= 14) resultado[tipo].pagos2pm += 1;
-        if (hora > 14 && hora <= 16) resultado[tipo].pagos4pm += 1;
-        if (hora > 16 && hora <= 18) resultado[tipo].pagos6pm += 1;
+      if (caso.estadoDeCredito === 'Pagado' || caso.estadoDeCredito === 'Pagado con Extensión') {
+        if (hora <= 10) {
+          resultado[tipo].pagos10am += 1;
+          resultado[tipo].tasaRecuperacion10am += monto;
+        }
+        if (hora > 10 && hora <= 12) {
+          resultado[tipo].pagos12am += 1;
+          resultado[tipo].tasaRecuperacion12am += monto;
+        }
+        if (hora > 12 && hora <= 14) {
+          resultado[tipo].pagos2pm += 1;
+          resultado[tipo].tasaRecuperacion2pm += monto;
+        }
+        if (hora > 14 && hora <= 16) {
+          resultado[tipo].pagos4pm += 1;
+          resultado[tipo].tasaRecuperacion4pm += monto;
+        }
+        if (hora > 16 && hora <= 18) {
+          resultado[tipo].pagos6pm += 1;
+          resultado[tipo].tasaRecuperacion6pm += monto;
+        }
         resultado[tipo].pagosTotal += 1;
+        resultado[tipo].tasaRecuperacionTotal += monto;
       } else if (caso.estadoDeComunicacion === 'Pagará pronto') {
         if (hora <= 10) resultado[tipo].ptp10am += 1;
         if (hora > 10 && hora <= 12) resultado[tipo].ptp12am += 1;
@@ -561,19 +595,6 @@ export const getReporteCDiario = async (req, res) => {
         if (hora > 14 && hora <= 16) resultado[tipo].ptp4pm += 1;
         if (hora > 16 && hora <= 18) resultado[tipo].ptp6pm += 1;
       }
-    });
-
-    // Calcular tasas de recuperación
-    Object.keys(resultado).forEach((tipo) => {
-      const data = resultado[tipo];
-      data.tasaRecuperacion10am = data.pagos10am / (data.ptp10am || 1);
-      data.tasaRecuperacion12am = data.pagos12am / (data.ptp12am || 1);
-      data.tasaRecuperacion2pm = data.pagos2pm / (data.ptp2pm || 1);
-      data.tasaRecuperacion4pm = data.pagos4pm / (data.ptp4pm || 1);
-      data.tasaRecuperacion6pm = data.pagos6pm / (data.ptp6pm || 1);
-      data.tasaRecuperacionTotal =
-        data.pagosTotal /
-        (data.ptp10am + data.ptp12am + data.ptp2pm + data.ptp4pm + data.ptp6pm || 1);
     });
 
     res.json({ data: resultado });

@@ -24,6 +24,7 @@ import { fileURLToPath } from 'url'; // Asegúrate de importar fileURLToPath
 import AWS from 'aws-sdk';
 // import uploadRoutes from './api/routes/uploadRoutes.js';
 import smsRoutes from './api/routes/smsRoutes.js';
+import multaRoutes from './api/routes/multaRoutes.js';
 import attendanceRoutes from './api/routes/attendanceRoutes.js';
 
 import uploadRoutesS3 from './api/routes/uploadRoutesS3.js';
@@ -60,6 +61,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/entryhour', HourEntryRoutes);
 app.use('/api/trkingoperaciones', TrakingOperacionesDeCasosRoutes);
+app.use('/api/multas', multaRoutes);
 
 // app.use('/api/counter', counterRoutes);  
 
