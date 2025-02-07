@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
 const MultaSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    // userId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     required: true
+    // },
     importeMulta: {
         type: Number,
         required: true
@@ -25,6 +25,10 @@ const MultaSchema = new mongoose.Schema({
         required: true
     },
     fechaDeAuditoria: {
+        type: String,
+        required: true
+    },
+    acotacion: {
         type: String,
         required: true
     }

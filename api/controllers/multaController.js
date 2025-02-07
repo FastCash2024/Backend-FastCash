@@ -2,15 +2,16 @@ import MultaCollection from "../models/MultaCollection.js";
 
 export const addMulta = async (req, res) => {
     try {
-        const { userId, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria } = req.body;
+        const { /*userId,*/ importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
 
         const nuevaMulta = new MultaCollection({
-            userId,
+            // userId,
             importeMulta,
             cuentaOperativa,
             cuentaPersonal,
             fechaDeOperacion,
-            fechaDeAuditoria
+            fechaDeAuditoria, 
+            acotacion
         });
 
         await nuevaMulta.save();
@@ -23,19 +24,20 @@ export const addMulta = async (req, res) => {
 export const editMulta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria } = req.body;
+        const { /*userId,*/ importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
 
         const multa = await MultaCollection.findById(id);
         if (!multa) {
             return res.status(404).json({ message: 'Multa no encontrada' });
         }
 
-        multa.userId = userId;
+        // multa.userId = userId;
         multa.importeMulta = importeMulta;
         multa.cuentaOperativa = cuentaOperativa;
         multa.cuentaPersonal = cuentaPersonal;
         multa.fechaDeOperacion = fechaDeOperacion;
         multa.fechaDeAuditoria = fechaDeAuditoria;
+        multa.acotacion = acotacion;
 
         await multa.save();
         res.status(200).json(multa);
@@ -121,17 +123,17 @@ export const getAllMultas = async (req, res) => {
     }
 };
 
-export const getMultasByUserId = async (req, res) => {
-    try {
-        const { userId } = req.params;
+// export const getMultasByUserId = async (req, res) => {
+//     try {
+//         const { userId } = req.params;
 
-        const multas = await MultaCollection.find({ userId });
-        if (multas.length === 0) {
-            return res.status(404).json({ message: 'No se encontraron multas para este usuario' });
-        }
+//         const multas = await MultaCollection.find({ userId });
+//         if (multas.length === 0) {
+//             return res.status(404).json({ message: 'No se encontraron multas para este usuario' });
+//         }
 
-        res.status(200).json(multas);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las multas del usuario', details: error.message });
-    }
-};
+//         res.status(200).json(multas);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error al obtener las multas del usuario', details: error.message });
+//     }
+// };
