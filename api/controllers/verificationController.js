@@ -45,6 +45,7 @@ export const getAllCredits = async (req, res) => {
       fechaDeReembolso,
       fechaDeCreacionDeLaTarea,
       fechaDeTramitacionDelCaso,
+      fechaDeTramitacionDeCobro,
       limit = 5,
       page = 1
     } = req.query;
@@ -87,9 +88,30 @@ export const getAllCredits = async (req, res) => {
       filter.nombreDelProducto = { $regex: nombreDelProducto, $options: "i" };
     }
 
-    if (fechaDeCreacionDeLaTarea || fechaDeTramitacionDelCaso) {
-      if (fechaDeCreacionDeLaTarea) filter.fechaDeCreacionDeLaTarea = new Date(fechaDeCreacionDeLaTarea).toISOString().split('T')[0];
-      if (fechaDeTramitacionDelCaso) filter.fechaDeTramitacionDelCaso = new Date(fechaDeTramitacionDelCaso).toISOString().split('T')[0];
+    if (fechaDeCreacionDeLaTarea) {
+      const fechaInicio = moment(fechaDeCreacionDeLaTarea).startOf('day').toISOString();
+      const fechaFin = moment(fechaDeCreacionDeLaTarea).endOf('day').toISOString();
+      filter.fechaDeCreacionDeLaTarea = {
+        $gte: fechaInicio,
+        $lte: fechaFin
+      };
+    }
+
+    if (fechaDeTramitacionDelCaso) {
+      const fechaInicio = moment(fechaDeTramitacionDelCaso).startOf('day').toISOString();
+      const fechaFin = moment(fechaDeTramitacionDelCaso).endOf('day').toISOString();
+      filter.fechaDeTramitacionDelCaso = {
+        $gte: fechaInicio,
+        $lte: fechaFin
+      };
+    }
+    if (fechaDeTramitacionDeCobro) {
+      const fechaInicio = moment(fechaDeTramitacionDeCobro).startOf('day').toISOString();
+      const fechaFin = moment(fechaDeTramitacionDeCobro).endOf('day').toISOString();
+      filter.fechaDeTramitacionDeCobro = {
+        $gte: fechaInicio,
+        $lte: fechaFin
+      };
     }
 
     if (fechaDeReembolso) {
@@ -102,7 +124,12 @@ export const getAllCredits = async (req, res) => {
           $lte: new Date(fechas[1]).toISOString().split("T")[0],
         };
       } else {
-        filter.fechaDeReembolso = new Date(fechaDeReembolso).toISOString().split("T")[0];
+        const fechaInicio = moment(fechaDeReembolso).startOf('day').toISOString();
+        const fechaFin = moment(fechaDeReembolso).endOf('day').toISOString();
+        filter.fechaDeReembolso = {
+          $gte: fechaInicio,
+          $lte: fechaFin
+        };
       }
     }
 
@@ -473,7 +500,7 @@ export const getReporteCDiario = async (req, res) => {
                   {
                     $dateToString: {
                       format: '%d/%m/%Y',
-                      date: { $toDate: '$fechaDeReembolso' },
+                      date: { $toDate: '$fechaDeTramitacionDeCobro' },
                     },
                   },
                   today,
@@ -559,7 +586,7 @@ export const getReporteCDiario = async (req, res) => {
 
       const fechaReferencia =
         caso.estadoDeCredito === 'Pagado' || caso.estadoDeCredito === 'Pagado con Extensión'
-          ? caso.fechaDeReembolso
+          ? caso.fechaDeTramitacionDeCobro
           : caso.fechaRegistroComunicacion;
       const hora = new Date(fechaReferencia).getHours();
       const monto = parseFloat(caso.valorSolicitado || 0);
@@ -614,7 +641,7 @@ export const getUpdateSTP = async (req, res) => {
       console.log("No encontrado en la base de datos.");
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
-    
+
     const creditData = credit.toObject();
 
     creditData.contactos = [];
