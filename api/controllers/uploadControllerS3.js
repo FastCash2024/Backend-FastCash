@@ -40,6 +40,8 @@ export const handleFileUploadMultiples = async (req, res) => {
       return res.status(400).json({ error: 'Debe enviar al menos un archivo' });
     }
     const formData = await JSON.parse(body.formData)
+    const resultApplications = await getApplications(formData['nivelDePrestamo']);
+    console.log("resultado aplicacion: ", resultApplications);
 
     // Crear un nuevo documento en la base de datos
     const newForm = new FormModel({
@@ -54,7 +56,7 @@ export const handleFileUploadMultiples = async (req, res) => {
 
 
     // Responder con las URLs de los archivos cargados
-    return res.status(200).json({ message: 'Files uploaded successfully', data: formData });
+    return res.status(200).json({ message: 'Files uploaded successfully', data: { ...formData.toObject(), applications: resultApplications } });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error, });

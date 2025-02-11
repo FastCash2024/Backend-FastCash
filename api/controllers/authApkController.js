@@ -1,7 +1,6 @@
 
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
-
-
+import Application from '../models/ApplicationsCollection.js';
 
 // Obtener todos los usuarios
 export const getFilterUsers = async (req, res) => {
@@ -65,14 +64,18 @@ export const getFilterUsersApk = async (req, res) => {
     if (users.length > 1) {
 
       return res.status(204).json({ message: "Many Accounts" });
-
     }
     if (users.length === 1) {
       const formData = { ...users[0].formData }
       delete formData['contactos']
+      delete formData['sms']
+      const resultAplication = await getApplications(formData['nivelDePrestamo'])
+      console.log("resultado aplicacion: ", resultAplication);
+      
       const dataRes = {
         userID: users[0].id,
-        ...formData
+        ...formData,
+        applications: resultAplication,
       }
       return res.json(dataRes);
       ;
@@ -198,4 +201,32 @@ export const getChatsUser = async (req, res) => {
   }
 };
 
+export const getApplications = async (nivelDePrestamo) => {
+  try {
+    const applications = await Application.find({ 'niveles.nivelDePrestamo': nivelDePrestamo });
 
+    const result = applications.map(application => {
+      const nivelesOrdenados = application.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
+
+      const nivelUsuario = nivelesOrdenados.find(n => n.nivelDePrestamo === nivelDePrestamo);
+      const ultimoNivel = nivelesOrdenados[nivelesOrdenados.length - 1];
+
+      return {
+        nombre: application.nombre,
+        icon: application.icon,
+        calificacion: application.calificacion,
+        interesDiario: nivelUsuario.interesDiario || "undefined",
+        interesTotal: nivelUsuario.interesTotal || "undefined",
+        valorDepositoLiquido: nivelUsuario.valorDepositoLiquido || "undefined",
+        valorExtencion: nivelUsuario.valorExtencion || "NaN",
+        valorPrestado: nivelUsuario.valorPrestadoMasInteres || "undefined",
+        valorPrestamoMenosInteres: nivelUsuario.valorPrestamoMenosInteres || "NaN",
+        prestamoMaximo: ultimoNivel.toObject(),
+      };
+    });
+
+    return result;
+  } catch (error) {
+    throw new Error(`Error al obtener las aplicaciones: ${error.message}`);
+  }
+};

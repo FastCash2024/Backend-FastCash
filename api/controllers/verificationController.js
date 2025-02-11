@@ -364,40 +364,47 @@ export const getCustomerFlow = async (req, res) => {
       {
         $group: {
           _id: {
-            nombreDeLaEmpresa: "$nombreDeLaEmpresa",
+            nombreDelProducto: "$nombreDelProducto",
             fechaDeReembolso: { $substr: ["$fechaDeReembolso", 0, 10] }
           },
-          total: { $sum: 1 },
-          totalCobrado: {
-            $sum: {
-              $cond: [{ $eq: ["$estadoDeCredito", "Cobrado"] }, 1, 0]
-            }
-          }
+          total: { $sum: 1 }, // Cuenta el total de documentos en el grupo
+          totalCasosCobrados: {
+            $sum: { $cond: [{ $eq: ["$estadoDeCredito", "Pagado"] }, 1, 0] }
+          },
+          totalMontoCobrado: {
+            $sum: { $cond: [{ $eq: ["$estadoDeCredito", "Pagado"] }, "$valorSolicitado", 0] }
+          },
+          totalMonto: { $sum: "$valorSolicitado" } // Nuevo campo para el total de todos los valores
         }
       },
       {
         $project: {
           _id: 0,
-          nombreDeLaEmpresa: "$_id.nombreDeLaEmpresa",
+          nombreDelProducto: "$_id.nombreDelProducto",
           fechaDeReembolso: "$_id.fechaDeReembolso",
           total: 1,
-          totalCobrado: 1
+          totalCasosCobrados: 1,
+          totalMontoCobrado: 1,
+          totalMonto: 1 // Agregado en la proyección final
         }
       }
     ]);
 
-
     // Transformar el resultado en el formato deseado
     const formattedResult = result.reduce((acc, item) => {
-      acc[item.nombreDeLaEmpresa] = {
+      acc[item.nombreDelProducto] = {
+        nombreDelProducto: item.nombreDelProducto,
         total: item.total,
-        totalCobrado: item.totalCobrado,
-        fechaDeReembolso: item.fechaDeReembolso
+        totalCasosCobrados: item.totalCasosCobrados,
+        totalMontoCobrado: item.totalMontoCobrado,
+        totalMonto: item.totalMonto, // Incluir en el JSON de salida
+        fechaDeReembolso: item.fechaDeReembolso,
       };
       return acc;
     }, {});
 
     res.json(formattedResult);
+
   } catch (error) {
     console.error("Error al obtener el flujo de clientes:", error);
     res.status(500).json({ message: "Error al obtener el flujo de clientes." });

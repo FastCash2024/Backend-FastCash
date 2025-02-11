@@ -65,18 +65,17 @@ export const register = async (req, res) => {
 //     }
 // };
 
-// Login de usuario
 export const getApplications = async (req, res) => {
     try {
-        const { nombre, categoria, limit = 5, page = 1 } = req.query;
+        const { nombre, /*categoria,*/ limit = 5, page = 1 } = req.query;
 
         const filter = {};
         if (nombre) {
             filter.nombre = { $regex: nombre, $options: "i" };
         }
-        if (categoria) {
-            filter.categoria = { $regex: categoria, $options: "i" };
-        }
+        // if (categoria) {
+        //     filter.categoria = { $regex: categoria, $options: "i" };
+        // }
 
         const totalDocuments = await Application.countDocuments(filter);
 
@@ -100,15 +99,15 @@ export const getApplications = async (req, res) => {
 
 export const getApplicationsToApp = async (req, res) => {
     try {
-        const { nombre, categoria, limit = 5, page = 1 } = req.query;
+        const { nombre, /*categoria,*/ limit = 5, page = 1 } = req.query;
 
         const filter = {};
         if (nombre) {
             filter.nombre = { $regex: nombre, $options: "i" };
         }
-        if (categoria) {
-            filter.categoria = { $regex: categoria, $options: "i" };
-        }
+        // if (categoria) {
+        //     filter.categoria = { $regex: categoria, $options: "i" };
+        // }
 
         const applications = await Application.find(filter)
 
@@ -125,50 +124,37 @@ export const getApplicationsToApp = async (req, res) => {
 export const getApplicationsById = async (req, res) => {
     try {
         const { id } = req.params;
-        let { page = 1, limit = 10 } = req.query; // Paginación desde query params (opcional)
+        let { page = 1, limit = 10 } = req.query;
 
-        // Convertir a número
         page = parseInt(page, 10);
         limit = parseInt(limit, 10);
 
-        // Buscar la aplicación por ID
         const application = await Application.findById(id);
         if (!application) {
             return res.status(404).json({ message: "Aplicación no encontrada" });
         }
 
-        // Obtener total de documentos
-        const totalDocuments = application.tipos.length;
+        const nivelesOrdenados = application.niveles.sort((a, b) => {
+            return parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo);
+        });
 
-        // Calcular paginación
+        const totalDocuments = nivelesOrdenados.length;
         const totalPages = Math.ceil(totalDocuments / limit);
         const startIndex = (page - 1) * limit;
         const endIndex = startIndex + limit;
 
-        // Obtener los tipos con paginación
-        const tiposPaginados = application.tipos.slice(startIndex, endIndex);
+        const tiposPaginados = nivelesOrdenados.slice(startIndex, endIndex);
 
-        // Devolver la respuesta con el formato deseado
         res.status(200).json({
             _id: application._id,
-            nombre: application.nombre,
-            valorPrestado: application.valorPrestado,
-            valorDepositoLiquido: application.valorDepositoLiquido,
-            interesTotal: application.interesTotal,
-            interesDiario: application.interesDiario,
-            valorPrestamoMenosInteres: application.valorPrestamoMenosInteres,
-            valorExtencion: application.valorExtencion,
             calificacion: application.calificacion,
             icon: application.icon,
-            categoria: application.categoria,
-            createdAt: application.createdAt,
-            updatedAt: application.updatedAt,
             currentPage: page,
             totalPages,
             totalDocuments,
-            data: tiposPaginados.map((tipo, index) => ({
-                numero: startIndex + index + 1, // Enumeración
-                ...tipo.toObject(), // Convertir el documento a objeto plano
+            data: tiposPaginados.map((nivel, index) => ({
+                numero: startIndex + index + 1,
+                ...nivel.toObject(),
             })),
         });
     } catch (error) {
@@ -247,17 +233,17 @@ export const deleteApplication = async (req, res) => {
 export const addTipoApplication = async (req, res) => {
     try {
         const { id } = req.params;
-        const { valorPrestadoMasInteres, valorDepositoLiquido, interesTotal, interesDiario, valorPrestamoMenosInteres, valorExtencion, tipo } = req.body;
+        const { valorPrestadoMasInteres, valorDepositoLiquido, interesTotal, interesDiario, valorPrestamoMenosInteres, valorExtencion, nivelDePrestamo } = req.body;
 
         console.log("aplicationId: ", id);
         console.log("body: ", req.body);
 
-        const existingTipo = await Application.findOne({ _id: id, 'tipos.tipo': tipo });
+        const existingTipo = await Application.findOne({ _id: id, 'niveles.nivelDePrestamo': nivelDePrestamo });
         if (existingTipo) {
-            return res.status(400).json({ message: 'El tipo ya existe en esta aplicación' });
+            return res.status(400).json({ message: 'El nivel de prestamo ya existe en esta aplicación' });
         }
 
-        const newTipo = { valorPrestadoMasInteres, valorDepositoLiquido, interesTotal, interesDiario, valorPrestamoMenosInteres, valorExtencion, tipo };
+        const newTipo = { valorPrestadoMasInteres, valorDepositoLiquido, interesTotal, interesDiario, valorPrestamoMenosInteres, valorExtencion, nivelDePrestamo };
 
         console.log("newTipo: ", newTipo);
 
@@ -266,51 +252,58 @@ export const addTipoApplication = async (req, res) => {
             return res.status(404).json({ message: 'La aplicación no existe' });
         }
 
-        application.tipos.push(newTipo);
+        application.niveles.push(newTipo);
         await application.save();
 
         res.status(200).json(application);
     } catch (error) {
-        res.status(500).json({ error: 'Error al agregar el tipo', details: error.message });
+        res.status(500).json({ error: 'Error al agregar el nivel de aplicacion.', details: error.message });
     }
 };
 
-
-
 export const updateTipoApplication = async (req, res) => {
-    try {
-        const { id, tipo } = req.params;        
-        const { valorPrestadoMasInteres, valorDepositoLiquido, interesTotal, interesDiario, valorPrestamoMenosInteres, valorExtencion } = req.body;
+  try {
+    const { id, nivelDePrestamo } = req.params;
+    const { valorPrestadoMasInteres, valorDepositoLiquido, interesTotal, interesDiario, valorPrestamoMenosInteres, valorExtencion, nuevoNivelDePrestamo } = req.body;
 
-        const application = await Application.findById(id);
-        if (!application) {
-            return res.status(404).json({ message: 'La aplicación no existe' });
-        }
-
-        const tipoToUpdate = application.tipos.find(t => t.tipo === tipo);
-        if (!tipoToUpdate) {
-            return res.status(404).json({ message: 'El tipo no existe en esta aplicación' });
-        }
-
-        tipoToUpdate.valorPrestadoMasInteres = valorPrestadoMasInteres || tipoToUpdate.valorPrestadoMasInteres;
-        tipoToUpdate.valorDepositoLiquido = valorDepositoLiquido || tipoToUpdate.valorDepositoLiquido;
-        tipoToUpdate.interesTotal = interesTotal || tipoToUpdate.interesTotal;
-        tipoToUpdate.interesDiario = interesDiario || tipoToUpdate.interesDiario;
-        tipoToUpdate.valorPrestamoMenosInteres = valorPrestamoMenosInteres || tipoToUpdate.valorPrestamoMenosInteres;
-        tipoToUpdate.valorExtencion = valorExtencion || tipoToUpdate.valorExtencion;
-
-        await application.save();
-
-        res.status(200).json(application);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al actualizar el tipo', details: error.message });
+    const application = await Application.findById(id);
+    if (!application) {
+      return res.status(404).json({ message: 'La aplicación no existe' });
     }
+
+    const tipoToUpdate = application.niveles.find(n => n.nivelDePrestamo === nivelDePrestamo);
+    if (!tipoToUpdate) {
+      return res.status(404).json({ message: 'El nivel no existe en esta aplicación' });
+    }
+
+    // Verificar si el nuevo nivel de prestamo ya existe en la aplicacion
+    if (nuevoNivelDePrestamo && nuevoNivelDePrestamo !== nivelDePrestamo) {
+      const nivelExistente = application.niveles.find(n => n.nivelDePrestamo === nuevoNivelDePrestamo);
+      if (nivelExistente) {
+        return res.status(400).json({ message: 'El nuevo nivel de préstamo ya existe en esta aplicación' });
+      }
+      tipoToUpdate.nivelDePrestamo = nuevoNivelDePrestamo;
+    }
+
+    tipoToUpdate.valorPrestadoMasInteres = valorPrestadoMasInteres || tipoToUpdate.valorPrestadoMasInteres;
+    tipoToUpdate.valorDepositoLiquido = valorDepositoLiquido || tipoToUpdate.valorDepositoLiquido;
+    tipoToUpdate.interesTotal = interesTotal || tipoToUpdate.interesTotal;
+    tipoToUpdate.interesDiario = interesDiario || tipoToUpdate.interesDiario;
+    tipoToUpdate.valorPrestamoMenosInteres = valorPrestamoMenosInteres || tipoToUpdate.valorPrestamoMenosInteres;
+    tipoToUpdate.valorExtencion = valorExtencion || tipoToUpdate.valorExtencion;
+
+    await application.save();
+
+    res.status(200).json(application);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el nivel', details: error.message });
+  }
 };
 
 
 export const deleteTipoApplication = async (req, res) => {
     try {
-        const { id, tipo } = req.params;
+        const { id, nivelDePrestamo } = req.params;
 
         // Buscar la aplicación
         const application = await Application.findById(id);
@@ -318,18 +311,18 @@ export const deleteTipoApplication = async (req, res) => {
             return res.status(404).json({ message: 'La aplicación no existe' });
         }
 
-        const tipoToDelete = application.tipos.find(t => t.tipo === tipo);
+        const tipoToDelete = application.niveles.find(n => n.nivelDePrestamo === nivelDePrestamo);
         if (!tipoToDelete) {
-            return res.status(404).json({ message: 'El tipo no existe en esta aplicación' });
+            return res.status(404).json({ message: 'El nivel no existe en esta aplicación' });
         }
 
-        application.tipos = application.tipos.filter(t => t.tipo !== tipo); // Eliminar el tipo encontrado
+        application.niveles = application.niveles.filter(n => n.nivelDePrestamo !== nivelDePrestamo); // Eliminar el tipo encontrado
 
         await application.save();
 
         res.status(200).json(application);
     } catch (error) {
-        res.status(500).json({ error: 'Error al eliminar el tipo', details: error.message });
+        res.status(500).json({ error: 'Error al eliminar el nivel de aplicacion', details: error.message });
     }
 };
 

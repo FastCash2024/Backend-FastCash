@@ -21,7 +21,7 @@ router.get('/aplicationbyid/:id', getApplicationsById);
 router.get('/customers', getCustomers);
 // tipos aplicacion
 router.post('/addtipoaplicacion/:id', addTipoApplication);
-router.put('/updatetipoaplicacion/:id/:tipo', updateTipoApplication);
-router.delete('/deletetipoaplicacion/:id/:tipo', deleteTipoApplication);
+router.put('/updatetipoaplicacion/:id/:nivelDePrestamo', updateTipoApplication);
+router.delete('/deletetipoaplicacion/:id/:nivelDePrestamo', deleteTipoApplication);
 
 export default router;
