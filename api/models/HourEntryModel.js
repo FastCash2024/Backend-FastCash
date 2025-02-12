@@ -1,5 +1,16 @@
 import { mongoose } from "mongoose";
 
+const EstadoDeAsistenciaSchema = new mongoose.Schema({
+    rango: {
+        type: String,
+        required: true,
+    },
+    estado: {
+        type: String,
+        required: true,
+    },
+});
+
 const EntryTimeSchema = new mongoose.Schema({
     horaEntrada: {
         type: String,
@@ -11,6 +22,10 @@ const EntryTimeSchema = new mongoose.Schema({
     },
     fechaEntrada: {
         type: String,
+        required: true,
+    },
+    estadosDeAsistencia: {
+        type: [EstadoDeAsistenciaSchema],
         required: true,
     },
     createdAt: {

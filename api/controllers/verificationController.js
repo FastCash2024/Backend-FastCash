@@ -385,19 +385,18 @@ export const getCustomerFlow = async (req, res) => {
           total: 1,
           totalCasosCobrados: 1,
           totalMontoCobrado: 1,
-          totalMonto: 1 // Agregado en la proyección final
+          totalMonto: 1
         }
       }
     ]);
 
-    // Transformar el resultado en el formato deseado
     const formattedResult = result.reduce((acc, item) => {
       acc[item.nombreDelProducto] = {
         nombreDelProducto: item.nombreDelProducto,
         total: item.total,
         totalCasosCobrados: item.totalCasosCobrados,
         totalMontoCobrado: item.totalMontoCobrado,
-        totalMonto: item.totalMonto, // Incluir en el JSON de salida
+        totalMonto: item.totalMonto,
         fechaDeReembolso: item.fechaDeReembolso,
       };
       return acc;

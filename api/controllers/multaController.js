@@ -2,10 +2,11 @@ import MultaCollection from "../models/MultaCollection.js";
 
 export const addMulta = async (req, res) => {
     try {
-        const { /*userId,*/ importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
+        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
 
         const nuevaMulta = new MultaCollection({
-            // userId,
+            cuentaAuditor,
+            cuentaPersonalAuditor,
             importeMulta,
             cuentaOperativa,
             cuentaPersonal,
@@ -24,14 +25,15 @@ export const addMulta = async (req, res) => {
 export const editMulta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { /*userId,*/ importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
+        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
 
         const multa = await MultaCollection.findById(id);
         if (!multa) {
             return res.status(404).json({ message: 'Multa no encontrada' });
         }
 
-        // multa.userId = userId;
+        multa.cuentaAuditor = cuentaAuditor;
+        multa.cuentaPersonalAuditor = cuentaPersonalAuditor;
         multa.importeMulta = importeMulta;
         multa.cuentaOperativa = cuentaOperativa;
         multa.cuentaPersonal = cuentaPersonal;
@@ -79,7 +81,7 @@ export const getMultaById = async (req, res) => {
 
 export const getAllMultas = async (req, res) => {
     try {
-        const { cuentaOperativa, cuentaPersonal, fechaInicioOperacion, fechaFinOperacion, fechaInicioAuditoria, fechaFinAuditoria, page = 1, limit = 10 } = req.query;
+        const { cuentaAuditor, cuentaPersonalAuditor,cuentaOperativa, cuentaPersonal, fechaInicioOperacion, fechaFinOperacion, fechaInicioAuditoria, fechaFinAuditoria, page = 1, limit = 10 } = req.query;
 
         const limitInt = parseInt(limit, 10);
         const pageInt = parseInt(page, 10);
@@ -90,6 +92,12 @@ export const getAllMultas = async (req, res) => {
         }
         if (cuentaPersonal) {
             filter.cuentaPersonal = cuentaPersonal;
+        }
+        if (cuentaAuditor) {
+            filter.cuentaAuditor = cuentaAuditor;
+        }
+        if (cuentaPersonalAuditor) {
+            filter.cuentaPersonalAuditor = cuentaPersonalAuditor;
         }
         if (fechaInicioOperacion && fechaFinOperacion) {
             filter.fechaDeOperacion = {

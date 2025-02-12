@@ -20,6 +20,16 @@ const MultaSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    cuentaAuditor: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    cuentaPersonalAuditor: {
+        type: String,
+        required: true,
+        trim: true
+    },
     fechaDeOperacion: {
         type: String,
         required: true

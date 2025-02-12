@@ -1,7 +1,7 @@
 import { EntryTimeModel } from "../models/HourEntryModel.js";
 
 export const registerEntryTime = async (req, res) => {
-    const { horaEntrada } = req.body;
+    const { horaEntrada, estadosDeAsistencia } = req.body;
 
     try {
         const exists = await EntryTimeModel.checkIfExistsForToday();
@@ -16,6 +16,7 @@ export const registerEntryTime = async (req, res) => {
         const newEntryTime = new EntryTimeModel({
             horaEntrada,
             fechaEntrada: new Date().toISOString().split('T')[0],
+            estadosDeAsistencia,
         });
 
         newEntryTime.calculateHoraSalida();
@@ -25,6 +26,7 @@ export const registerEntryTime = async (req, res) => {
         return res.status(201).json({
             success: true,
             message: "Hora de entrada registrada correctamente.",
+            data: newEntryTime,
         });
     } catch (error) {
         console.error("Error al registrar la hora de entrada: ", error);
@@ -34,6 +36,7 @@ export const registerEntryTime = async (req, res) => {
         });
     }
 };
+
 
 export const getEntryTimeForToday = async (req, res) => {
     try {
