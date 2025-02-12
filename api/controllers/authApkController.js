@@ -182,7 +182,7 @@ export const getChatsUser = async (req, res) => {
         _id: form._id,
         nombreCompleto: `${nombres} ${apellidos}`,
         contacto,
-        cantidadSms: sms.length 
+        cantidadSms: sms?.length 
       };
     });
 

@@ -41,6 +41,14 @@ const MultaSchema = new mongoose.Schema({
     acotacion: {
         type: String,
         required: true
+    },
+    seccionMulta: {
+        type: String,
+        required: true,
+    },
+    observaciones: {
+        type: String,
+        required: true,
     }
 }, {
     timestamps: true,

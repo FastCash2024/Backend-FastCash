@@ -2,7 +2,7 @@ import MultaCollection from "../models/MultaCollection.js";
 
 export const addMulta = async (req, res) => {
     try {
-        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
+        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion, observaciones, seccionMulta, } = req.body;
 
         const nuevaMulta = new MultaCollection({
             cuentaAuditor,
@@ -12,7 +12,9 @@ export const addMulta = async (req, res) => {
             cuentaPersonal,
             fechaDeOperacion,
             fechaDeAuditoria, 
-            acotacion
+            acotacion,
+            seccionMulta,
+            observaciones, 
         });
 
         await nuevaMulta.save();
@@ -25,21 +27,14 @@ export const addMulta = async (req, res) => {
 export const editMulta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion } = req.body;
+        const updateData = req.body;
 
         const multa = await MultaCollection.findById(id);
         if (!multa) {
             return res.status(404).json({ message: 'Multa no encontrada' });
         }
 
-        multa.cuentaAuditor = cuentaAuditor;
-        multa.cuentaPersonalAuditor = cuentaPersonalAuditor;
-        multa.importeMulta = importeMulta;
-        multa.cuentaOperativa = cuentaOperativa;
-        multa.cuentaPersonal = cuentaPersonal;
-        multa.fechaDeOperacion = fechaDeOperacion;
-        multa.fechaDeAuditoria = fechaDeAuditoria;
-        multa.acotacion = acotacion;
+        Object.assign(multa, updateData);
 
         await multa.save();
         res.status(200).json(multa);

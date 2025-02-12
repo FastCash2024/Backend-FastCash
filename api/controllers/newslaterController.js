@@ -24,7 +24,25 @@ export const readNewsletter = async (req, res) => {
   }
 };
 
+// Actualizar contenido de un boletín informativo existente
+export const updateNewsletter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
 
+    const newsletter = await Newsletter.findById(id);
+    if (!newsletter) {
+      return res.status(404).json({ message: 'Documento no encontrado' });
+    }
+
+    newsletter.content = content;
+    await newsletter.save();
+
+    res.status(200).json({ message: 'Actualizado exitosamente', newsletter });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar', details: error.message });
+  }
+};
 
 // // Mandar las categorias de prestamos
 
