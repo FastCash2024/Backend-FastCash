@@ -1,5 +1,5 @@
 import express from 'express';
-import { addMulta, deleteMulta, editMulta, getAllMultas, getMultaById } from "../controllers/multaController.js";
+import { addMulta, deleteMulta, editMulta, getAllMultas, getMultaById, getReporteDiarioMultas } from "../controllers/multaController.js";
 
 const router = express.Router();
 
@@ -8,6 +8,7 @@ router.put('/multas/:id', editMulta);
 router.delete('/multas/:id', deleteMulta);
 router.get('/multas', getAllMultas);
 router.get('/multas/:id', getMultaById);
+router.get('/reporte', getReporteDiarioMultas);
 // router.get('/multas/user/:userId', getMultasByUserId);
 
 export default router;
