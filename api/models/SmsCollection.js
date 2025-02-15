@@ -26,7 +26,7 @@ const SmsSendSchema = new mongoose.Schema({
         required: true
     },
     fechaDeEnvio: {
-        type: Date,
+        type: String,
         required: true
     },
     estadoDeEnvioDeSms: {

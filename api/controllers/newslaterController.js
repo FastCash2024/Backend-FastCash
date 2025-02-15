@@ -44,6 +44,19 @@ export const updateNewsletter = async (req, res) => {
   }
 };
 
+export const deleteNewsletter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const newsletter = await Newsletter.findByIdAndDelete(id);
+    if (!newsletter) {
+      return res.status(400).json({ message: "Documento no encontrado" });
+    }
+    return res.status(200).json({ message: "Documento eliminado correctamente" })
+  } catch (error) {
+    return res.status(500).json({ message: "Error al eliminar el documento", error: error.message });
+  }
+}
+
 // // Mandar las categorias de prestamos
 
 

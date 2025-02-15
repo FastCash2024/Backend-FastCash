@@ -1,6 +1,7 @@
 
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 import Application from '../models/ApplicationsCollection.js';
+import { verificarOTP } from './uploadControllerS3.js';
 
 // Obtener todos los usuarios
 export const getFilterUsers = async (req, res) => {
@@ -37,8 +38,13 @@ export const getFilterUsers = async (req, res) => {
 export const getFilterUsersApk = async (req, res) => {
   console.log(req)
   try {
-    const { phoneNumber } = req.query;
+    const { phoneNumber, codigo } = req.query;
     console.log(phoneNumber)
+
+    const otpResult = await verificarOTP(phoneNumber, codigo);
+    if (!otpResult.success) {
+      return res.status(400).json({ error: otpResult.error });
+    }
 
     // // Validación de phoneNumber
     // if (phoneNumber && typeof phoneNumber !== "string") {

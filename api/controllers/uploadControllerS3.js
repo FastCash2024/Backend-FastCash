@@ -1,6 +1,7 @@
 import { uploadFile, uploadFileToS3, getFile, deleteFile, getSignedUrl } from '../models/S3Model.js';
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 import { getApplications } from './authApkController.js';
+import { SmsModel } from '../models/smsModel.js';
 
 export const handleFileUpload = async (req, res) => {
   if (!req.file) {
@@ -22,6 +23,14 @@ export const handleFileUploadMultiples = async (req, res) => {
   console.log("body", body)
   console.log("files", files)
   try {
+
+    const { phoneNumber, codigo } = body;
+
+    const otpResult = await verificarOTP(phoneNumber, codigo);
+    if (!otpResult.success) {
+      return res.status(400).json({ error: otpResult.error });
+    }
+
     // Verificar que los archivos estén presentes
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -43,6 +52,8 @@ export const handleFileUploadMultiples = async (req, res) => {
     const formData = await JSON.parse(body.formData)
     console.log("nivel de prestamos: ", formData.nivelDePrestamo);
 
+    formData.phoneNumber = phoneNumber;
+    
     const resultApplications = await getApplications(formData['nivelDePrestamo']);
     console.log("resultado aplicacion: ", resultApplications);
 
@@ -96,3 +107,22 @@ export const handleGetSignedUrl = async (req, res) => {
     res.status(500).json({ error: 'Error generating signed URL', details: error.message });
   }
 };
+
+export const verificarOTP = async (telefono, codigo) => {
+  if (!telefono || !codigo) {
+    return { success: false, error: "El número de teléfono y el código OTP son requeridos." };
+  }
+
+  const otpRecord = await SmsModel.findOne({ telefono, code: codigo });
+
+  if (!otpRecord) {
+    const phoneExists = await SmsModel.findOne({ telefono });
+    if (phoneExists) {
+      return { success: false, error: "El código es incorrecto." };
+    }
+    return { success: false, error: "El número de teléfono no está registrado o no tiene un OTP válido." };
+  }
+
+  return { success: true, message: "OTP válido." };
+};
+
