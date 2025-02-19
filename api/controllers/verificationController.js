@@ -216,25 +216,29 @@ export const updateCredit = async (req, res) => {
 
 const enviarSolicitudAprobacion = async (credit) => {
   const url = "https://stp.fastcash-mx.com/api/registar-orden-pago";
+
+  const dataEnviar = {
+    _id: credit._id.toString(),
+    // estadoDeCredito: credit.estadoDeCredito,
+    nombreDelCliente: credit.nombreDelCliente,
+    numeroDeCuenta: credit.numeroDeCuenta,
+    nombreBanco: credit.nombreBanco,
+    valorEnviar: credit.valorEnviar
+  }
+
+  console.log("data enviar: ", dataEnviar);
+  
   try {
     const response = await fetch(url, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        _id: credit._id,
-        // idDeSubFactura: credit.idDeSubFactura, // est generado por la otro servicio
-        estadoDeCredito: credit.estadoDeCredito,
-        nombreDelCliente: credit.nombreDelCliente,
-        numeroDeCuenta: credit.numeroDeCuenta,
-        nombreBanco: credit.nombreBanco,
-        valorEnviar: credit.montoSolicitado
-      }),
+      body: JSON.stringify({ dataEnviar }),
     });
 
     const data = await response.json();
-    console.log("Respuesta de la API:", data.error);
+    console.log("Respuesta de la API:", data);
 
     return {
       success: data.success,
@@ -268,15 +272,19 @@ export const updateCreditoAprobado = async (req, res) => {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
+    console.log("datos de credito: ", updatedCredit.valorEnviado);
+    console.log("datos de credito: ", updatedCredit.nombreDelCliente);
+    
+
     if (updatedCredit.estadoDeCredito === "Aprobado") {
       try {
         const dispersionData = await enviarSolicitudAprobacion({
           _id: updatedCredit._id,
-          estadoDeCredito: updatedCredit.estadoDeCredito,
+          // estadoDeCredito: updatedCredit.estadoDeCredito,
           numeroDeCuenta: updatedCredit.numeroDeCuenta,
           nombreBanco: updatedCredit.nombreBanco,
-          nombreDelCliente: updateCredit.nombreDelCliente,
-          valorEnviar: updateCredit.valorEnviado
+          nombreDelCliente: updatedCredit.nombreDelCliente,
+          valorEnviar: updatedCredit.valorEnviado
 
         });
 
