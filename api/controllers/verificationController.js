@@ -275,7 +275,7 @@ export const updateCreditoAprobado = async (req, res) => {
     console.log("datos de credito: ", updatedCredit.valorEnviado);
     console.log("datos de credito: ", updatedCredit.nombreDelCliente);
     
-
+    let mensajeDispersión = "";
     if (updatedCredit.estadoDeCredito === "Aprobado") {
       try {
         const dispersionData = await enviarSolicitudAprobacion({
@@ -287,17 +287,17 @@ export const updateCreditoAprobado = async (req, res) => {
           valorEnviar: updatedCredit.valorEnviado
 
         });
-
+        console.log("respuesta de la dispersion :", dispersionData);
+        
         if (!dispersionData || dispersionData.error) {
+          mensajeDispersión = "Orden de dispersión no enviada."
           return res.status(500).json({
             message: "Error en la solicitud de aprobación",
             error: dispersionData?.error || "Error desconocido",
           });
         }
-
-        await VerificationCollection.findByIdAndUpdate(updatedCredit._id, {
-          stdDispersion: dispersionData,
-        });
+        mensajeDispersión = "Orden de dispersión enviada.";
+        return res.status(200).json({message: mensajeDispersión})
       } catch (error) {
         console.error("Error en la solicitud de aprobación:", error);
         return res.status(500).json({ message: "Error en la solicitud de aprobación", error: error.message });
@@ -305,13 +305,14 @@ export const updateCreditoAprobado = async (req, res) => {
     }
 
     return res.json({
-      ...updatedCredit.toObject(),
-      contactos: [],
-      sms: [],
-      acotacionesCobrador: [],
-      acotaciones: [],
-      trackingDeOperaciones: [],
-      cuentasBancarias: [],
+      mensajeDispersión,
+      // ...updatedCredit.toObject(),
+      // contactos: [],
+      // sms: [],
+      // acotacionesCobrador: [],
+      // acotaciones: [],
+      // trackingDeOperaciones: [],
+      // cuentasBancarias: [],
     });
   } catch (error) {
     console.error("Error en updateCreditoAprobado:", error);
