@@ -295,8 +295,9 @@ export const updateCreditoAprobado = async (req, res) => {
           });
         }
 
-        updatedCredit.stdDispersion = dispersionData;
-        await updatedCredit.save();
+        await VerificationCollection.findByIdAndUpdate(updatedCredit._id, {
+          stdDispersion: dispersionData,
+        });
       } catch (error) {
         console.error("Error en la solicitud de aprobación:", error);
         return res.status(500).json({ message: "Error en la solicitud de aprobación", error: error.message });
