@@ -54,19 +54,26 @@ app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/counter', counterRoutes);
 app.use('/api/otp', otpRoutes);
+//Gestion de Aplicaciones Routes
 app.use('/api/applications', applicationsRoutes);
 // app.use('/api/authApk', authApkRoutes);
+
+//Auth APK Routes
 app.use('/api/authApk', uploadRoutesS3);
+
+// Gestion de OTP, sms
 app.use('/api/sms', smsRoutes);
+
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/entryhour', HourEntryRoutes);
 app.use('/api/trkingoperaciones', TrakingOperacionesDeCasosRoutes);
 app.use('/api/multas', multaRoutes);
+
+//Newlatter Routes
 app.use('/api/newsletter', newslaterRoutes);
 
 // app.use('/api/counter', counterRoutes);  
-
 
 // const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -213,7 +213,7 @@ export const registerPersonal = async (req, res) => {
         // Verificar si el usuario ya existe
         const userExists = await UserPersonal.findOne({ $or: [{ email }] });
         if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ message: 'El usuario ya existe' });
         }
 
         // Encriptar la contraseña
@@ -255,13 +255,13 @@ export const loginPersonal = async (req, res) => {
         // Verificar si el usuario existe
         const user = await UserPersonal.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Usuario incorrecto' });
         }
         console.log(user)
         // Verificar la contraseña
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Contraseña incorrecta' });
         }
         console.log("match", isMatch)
         // Crear token JWT
@@ -468,13 +468,13 @@ export const loginVerificacion = async (req, res) => {
         // Verificar si el usuario existe
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Usuario incorrecto' });
         }
 
         // Verificar la contraseña
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Contraseña incorrecta' });
         }
 
         // Crear token JWT

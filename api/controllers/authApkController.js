@@ -7,27 +7,22 @@ import { verificarOTP } from './uploadControllerS3.js';
 export const getFilterUsers = async (req, res) => {
   try {
     const { phoneNumber } = req.query;
-
     // Validación de phoneNumber
     if (phoneNumber && typeof phoneNumber !== "string") {
       return res.status(400).json({ message: "El campo phoneNumber debe ser un string válido." });
     }
-
     // Construcción dinámica del filtro
     const filter = {};
     if (phoneNumber) {
       // Buscar dentro de formData usando la notación de punto
       filter["formData.phoneNumber"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
     }
-
     // Consulta a MongoDB con filtro dinámico
     const users = await FormModel.find(filter);
-
     // Respuesta
     if (users.length === 0) {
       return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
     }
-
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
@@ -40,35 +35,29 @@ export const getFilterUsersApk = async (req, res) => {
   try {
     const { phoneNumber, codigo } = req.query;
     console.log(phoneNumber)
-
     const otpResult = await verificarOTP(phoneNumber, codigo);
     if (!otpResult.success) {
       return res.status(400).json({ error: otpResult.error });
     }
-
     // // Validación de phoneNumber
     // if (phoneNumber && typeof phoneNumber !== "string") {
     //   return res.status(400).json({ message: "El campo phoneNumber debe ser un string válido." });
     // }
-
     // Construcción dinámica del filtro
     const filter = {};
     if (phoneNumber) {
       // Buscar dentro de formData usando la notación de punto
-      filter["formData.phoneNumber"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
+      filter["formData.contacto"] = { $regex: phoneNumber, $options: "i" }; // Insensible a mayúsculas
     }
-
     // Consulta a MongoDB con filtro dinámico
     const users = await FormModel.find(filter);
     console.log(phoneNumber)
     console.log(users)
-
     // Respuesta
     if (users.length === 0) {
       return res.status(404).json({ message: "No se encontraron usuarios que coincidan con el filtro." });
     }
     if (users.length > 1) {
-
       return res.status(204).json({ message: "Many Accounts" });
     }
     if (users.length === 1) {
@@ -77,7 +66,6 @@ export const getFilterUsersApk = async (req, res) => {
       delete formData['sms']
       const resultAplication = await getApplications(formData['nivelDePrestamo'])
       console.log("resultado aplicacion: ", resultAplication);
-      
       const dataRes = {
         userID: users[0].id,
         ...formData,
@@ -87,7 +75,6 @@ export const getFilterUsersApk = async (req, res) => {
       ;
     }
     return res.status(404).json({ message: "non exist" });
-
   } catch (error) {
     res.status(500).json({ message: "Ocurrió un error al obtener los usuarios.", error: error.message });
   }
