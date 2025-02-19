@@ -229,7 +229,7 @@ const enviarSolicitudAprobacion = async (credit) => {
         nombreDelCliente: credit.nombreDelCliente,
         numeroDeCuenta: credit.numeroDeCuenta,
         nombreBanco: credit.nombreBanco,
-        montoSolicitado: credit.montoSolicitado
+        valorEnviar: credit.montoSolicitado
       }),
     });
 
@@ -276,7 +276,7 @@ export const updateCreditoAprobado = async (req, res) => {
           numeroDeCuenta: updatedCredit.numeroDeCuenta,
           nombreBanco: updatedCredit.nombreBanco,
           nombreDelCliente: updateCredit.nombreDelCliente,
-          montoSolicitado: updateCredit.valorEnviado
+          valorEnviar: updateCredit.valorEnviado
 
         });
 
