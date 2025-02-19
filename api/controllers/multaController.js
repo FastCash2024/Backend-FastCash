@@ -12,10 +12,10 @@ export const addMulta = async (req, res) => {
             cuentaOperativa,
             cuentaPersonal,
             fechaDeOperacion,
-            fechaDeAuditoria, 
+            fechaDeAuditoria,
             acotacion,
             seccionMulta,
-            observaciones, 
+            observaciones,
         });
 
         await nuevaMulta.save();
@@ -77,7 +77,7 @@ export const getMultaById = async (req, res) => {
 
 export const getAllMultas = async (req, res) => {
     try {
-        const { cuentaAuditor, cuentaPersonalAuditor,cuentaOperativa, cuentaPersonal, fechaInicioOperacion, fechaFinOperacion, fechaInicioAuditoria, fechaFinAuditoria, page = 1, limit = 10 } = req.query;
+        const { cuentaAuditor, cuentaPersonalAuditor, cuentaOperativa, cuentaPersonal, fechaInicioOperacion, fechaFinOperacion, fechaInicioAuditoria, fechaFinAuditoria, page = 1, limit = 10 } = req.query;
 
         const limitInt = parseInt(limit, 10);
         const pageInt = parseInt(page, 10);
@@ -128,65 +128,79 @@ export const getAllMultas = async (req, res) => {
 };
 
 export const getReporteDiarioMultas = async (req, res) => {
-  try {
-    const { fecha } = req.query;
-    const today = fecha || moment().format('DD/MM/YYYY');
+    try {
+        const { fecha } = req.query;
+        const today = fecha || moment().format('DD/MM/YYYY');
 
-    const filter = {
-      $expr: {
-        $eq: [
-          {
-            $dateToString: {
-              format: '%d/%m/%Y',
-              date: { $toDate: '$fechaDeAuditoria' },
+        const filter = {
+            $expr: {
+                $eq: [
+                    {
+                        $dateToString: {
+                            format: '%d/%m/%Y',
+                            date: { $toDate: '$fechaDeAuditoria' },
+                        },
+                    },
+                    today,
+                ],
             },
-          },
-          today,
-        ],
-      },
-    };
-
-    console.log('Filtro:', filter);
-    const multasDelDia = await MultaCollection.find(filter);
-    console.log('Multas del día:', multasDelDia);
-
-    if (multasDelDia.length === 0) {
-      return res.json({
-        data: {},
-        message: `No se encontraron multas del día ${today}.`,
-      });
-    }
-
-    const resultado = {};
-
-    multasDelDia.forEach((multa) => {
-      const tipo = multa.cuentaAuditor || 'Desconocido';
-
-      if (!resultado[tipo]) {
-        resultado[tipo] = {
-          multados10am: 0,
-          multados12am: 0,
-          multados14pm: 0,
-          multados16pm: 0,
-          multadosTotal: 0,
         };
-      }
 
-      const hora = new Date(multa.fechaDeAuditoria).getUTCHours();
+        console.log('Filtro:', filter);
+        const multasDelDia = await MultaCollection.find(filter);
+        console.log('Multas del día:', multasDelDia);
 
-      if (hora <= 10) resultado[tipo].multados10am += 1;
-      if (hora > 10 && hora <= 12) resultado[tipo].multados12am += 1;
-      if (hora > 12 && hora <= 14) resultado[tipo].multados14pm += 1;
-      if (hora > 14 && hora <= 16) resultado[tipo].multados16pm += 1;
-      resultado[tipo].multadosTotal += 1;
-    });
+        if (multasDelDia.length === 0) {
+            return res.json({
+                data: {},
+                message: `No se encontraron multas del día ${today}.`,
+            });
+        }
 
-    res.json({ data: resultado });
-  } catch (error) {
-    console.error('Error al obtener el reporte diario de multas:', error);
-    res.status(500).json({ message: 'Error al obtener los datos' });
-  }
+        const resultado = {};
+
+        multasDelDia.forEach((multa) => {
+            const tipo = multa.cuentaAuditor || 'Desconocido';
+            const observacion = multa.observaciones || 'Sin Observaciones';
+            const esMultado = observacion === 'Con Observaciones';
+
+            if (!resultado[tipo]) {
+                resultado[tipo] = {
+                    multados10am: 0,
+                    multados12am: 0,
+                    multados14pm: 0,
+                    multados16pm: 0,
+                    multadosTotal: 0,
+                    sinMulta10am: 0,
+                    sinMulta12am: 0,
+                    sinMulta14pm: 0,
+                    sinMulta16pm: 0,
+                    sinMultaTotal: 0,
+                };
+            }
+
+            const hora = new Date(multa.fechaDeAuditoria).getUTCHours();
+
+            if (hora <= 10) {
+                esMultado ? resultado[tipo].multados10am++ : resultado[tipo].sinMulta10am++;
+            } else if (hora > 10 && hora <= 12) {
+                esMultado ? resultado[tipo].multados12am++ : resultado[tipo].sinMulta12am++;
+            } else if (hora > 12 && hora <= 14) {
+                esMultado ? resultado[tipo].multados14pm++ : resultado[tipo].sinMulta14pm++;
+            } else if (hora > 14 && hora <= 16) {
+                esMultado ? resultado[tipo].multados16pm++ : resultado[tipo].sinMulta16pm++;
+            }
+
+            esMultado ? resultado[tipo].multadosTotal++ : resultado[tipo].sinMultaTotal++;
+        });
+
+        res.json({ data: resultado });
+    } catch (error) {
+        console.error('Error al obtener el reporte diario de multas:', error);
+        res.status(500).json({ message: 'Error al obtener los datos' });
+    }
 };
+
 
 
 

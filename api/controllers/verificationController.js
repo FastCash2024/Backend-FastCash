@@ -224,11 +224,12 @@ const enviarSolicitudAprobacion = async (credit) => {
       },
       body: JSON.stringify({
         _id: credit._id,
-        idDeSubFactura: credit.idDeSubFactura,
+        // idDeSubFactura: credit.idDeSubFactura, // est generado por la otro servicio
         estadoDeCredito: credit.estadoDeCredito,
         nombreDelCliente: credit.nombreDelCliente,
         numeroDeCuenta: credit.numeroDeCuenta,
         nombreBanco: credit.nombreBanco,
+        montoSolicitado: credit.montoSolicitado
       }),
     });
 
@@ -274,6 +275,9 @@ export const updateCreditoAprobado = async (req, res) => {
           estadoDeCredito: updatedCredit.estadoDeCredito,
           numeroDeCuenta: updatedCredit.numeroDeCuenta,
           nombreBanco: updatedCredit.nombreBanco,
+          nombreDelCliente: updateCredit.nombreDelCliente,
+          montoSolicitado: updateCredit.valorEnviado
+
         });
 
         if (!dispersionData || dispersionData.error) {
