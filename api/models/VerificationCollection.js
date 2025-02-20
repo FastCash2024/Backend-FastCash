@@ -101,6 +101,7 @@ const verificationCollectionSchema = new mongoose.Schema({
   estadoDeComunicacion: String,
   fechaRegistroComunicacion: String,
   fechaDeTramitacionDeCobro: String,
+  valorPagadoDiferente: Number,
 
   acotacionesCobrador: [AcotacionSchema],
   acotaciones: [AcotacionSchema],

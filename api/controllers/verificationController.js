@@ -240,6 +240,9 @@ const enviarSolicitudAprobacion = async (credit) => {
     const data = await response.json();
     console.log("Respuesta de la API:", data);
 
+    if (!data.ok) {
+      return res.status(404).json({ message: `Error al realizar la solicitud: ${data.error}` });
+    }
     return {
       success: data.success,
       descripcionError: data.response?.resultado?.descripcionError || null,
@@ -264,16 +267,15 @@ export const updateCreditoAprobado = async (req, res) => {
 
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { $set: { campoAActualizar: req.body.campoAActualizar } },
       { new: true }
-    );
+  );
 
     if (!updatedCredit) {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
-    console.log("datos de credito: ", updatedCredit.valorEnviado);
-    console.log("datos de credito: ", updatedCredit.nombreDelCliente);
+    console.log("datos de credito: ", updatedCredit);
     
     let mensajeDispersión = "";
     if (updatedCredit.estadoDeCredito === "Aprobado") {

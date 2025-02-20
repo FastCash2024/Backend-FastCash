@@ -53,7 +53,7 @@ export const getComisionById = async (req, res) => {
 
 export const updateComision = async (req, res) => {
     try {
-        const comisionActualizada = new ComisionCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const comisionActualizada = await ComisionCollection.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!comisionActualizada) {
             return res.status(404).json({ message: "La comision no existe." })
         }
