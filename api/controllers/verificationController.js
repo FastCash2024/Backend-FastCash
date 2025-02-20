@@ -219,64 +219,64 @@ const enviarSolicitudAprobacion = async (credit) => {
 
   const dataEnviar = {
     _id: credit._id.toString(),
-    // estadoDeCredito: credit.estadoDeCredito,
     nombreDelCliente: credit.nombreDelCliente,
     numeroDeCuenta: credit.numeroDeCuenta,
     nombreBanco: credit.nombreBanco,
-    valorEnviar: credit.valorEnviar
-  }
+    valorEnviar: credit.valorEnviar,
+  };
 
   console.log("data enviar: ", dataEnviar);
-  
+
   try {
     const response = await fetch(url, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ dataEnviar }),
+      body: JSON.stringify(dataEnviar),
     });
 
     const data = await response.json();
     console.log("Respuesta de la API:", data);
 
-    if (!data.ok) {
-      return res.status(404).json({ message: `Error al realizar la solicitud: ${data.error}` });
+    if (!data || data.success === null || data.error) {
+      return {
+        success: false,
+        message: "La dispersión no se realizó. Intente nuevamente.",
+        error: data?.error || "Error desconocido",
+      };
     }
+
     return {
-      success: data.success,
-      descripcionError: data.response?.resultado?.descripcionError || null,
-      id: data.response?.resultado?.id || null,
-      fechaOperacion: data.response?.data?.fechaoperacion || null,
-      institucionOperante: data.response?.data?.institucionoperante || null,
-      claveRastreo: data.response?.data?.claveRastreo || null,
-      claveRastreoDevolucion: data.response?.data?.claveRastreoDevolucion || null,
-      empresa: data.response?.data?.empresa || null,
-      monto: data.response?.data?.monto || null,
-      digitoIdentificadorBeneficiario: data.response?.data?.digit01IdentificadorBeneficiario || null,
-      medioEntrega: data.response?.data?.medioEntrega || null,
-      firma: data.response?.data?.firma || null,
+      success: true,
+      ...data
     };
   } catch (error) {
     console.error("Error al enviar solicitud a STP:", error);
+    return {
+      success: false,
+      message: "Error en la solicitud de aprobación.",
+      error: error.message,
+    };
   }
-}
+};
+
 
 export const updateCreditoAprobado = async (req, res) => {
   try {
 
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(
       req.params.id,
-      { $set: { campoAActualizar: req.body.campoAActualizar } },
+      { $set: { estadoDeCredito: req.body.estadoDeCredito } },
       { new: true }
-  );
+    );
 
     if (!updatedCredit) {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
-    console.log("datos de credito: ", updatedCredit);
-    
+    // console.log("datos de credito: ", updatedCredit);
+
     let mensajeDispersión = "";
     if (updatedCredit.estadoDeCredito === "Aprobado") {
       try {
@@ -290,7 +290,7 @@ export const updateCreditoAprobado = async (req, res) => {
 
         });
         console.log("respuesta de la dispersion :", dispersionData);
-        
+
         if (!dispersionData || dispersionData.error) {
           mensajeDispersión = "Orden de dispersión no enviada."
           return res.status(500).json({
@@ -299,7 +299,7 @@ export const updateCreditoAprobado = async (req, res) => {
           });
         }
         mensajeDispersión = "Orden de dispersión enviada.";
-        return res.status(200).json({message: mensajeDispersión})
+        return res.status(200).json({ message: mensajeDispersión })
       } catch (error) {
         console.error("Error en la solicitud de aprobación:", error);
         return res.status(500).json({ message: "Error en la solicitud de aprobación", error: error.message });
