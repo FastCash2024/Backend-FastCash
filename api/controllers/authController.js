@@ -102,6 +102,8 @@ export const login = async (req, res) => {
         cuenta: user.cuenta,
         email: user.email,
         situacionLaboral: user.situacionLaboral,
+        fotoURL: user.fotoURL,
+        numeroDeTelefonoMovil: user.numeroDeTelefonoMovil,
       },
     });
   } catch (error) {
