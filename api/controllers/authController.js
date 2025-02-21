@@ -1,3 +1,4 @@
+// auth cuentas operativas producción
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/AuthCollection.js";
@@ -123,6 +124,8 @@ export const updateUser = async (req, res) => {
       password, // Nuevo password
       nombrePersonal,
       emailPersonal,
+      fotoURL,
+      numeroDeTelefonoMovil,
     } = req.body;
 
     // Verificar si el usuario existe
@@ -146,9 +149,11 @@ export const updateUser = async (req, res) => {
     user.cuenta = cuenta || user.cuenta;
     (user.nombrePersonal = nombrePersonal || user.nombrePersonal),
       (user.emailPersonal = emailPersonal || user.emailPersonal);
-
-    // Guardar los cambios en la base de datos
-    await user.save();
+    (user.fotoURL = fotoURL || user.fotoURL),
+      (user.numeroDeTelefonoMovil =
+        numeroDeTelefonoMovil || user.numeroDeTelefonoMovil),
+      // Guardar los cambios en la base de datos
+      await user.save();
 
     // Responder con los datos actualizados del usuario
     res.json({
@@ -163,6 +168,8 @@ export const updateUser = async (req, res) => {
         cuenta: user.cuenta,
         nombrePersonal: user.nombrePersonal,
         emailPersonal: user.emailPersonal,
+        fotoURL: user.fotoURL,
+        numeroDeTelefonoMovil: user.numeroDeTelefonoMovil,
       },
     });
   } catch (error) {
