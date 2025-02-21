@@ -99,7 +99,7 @@ export const login = async (req, res) => {
         origenDeLaCuenta: user.origenDeLaCuenta,
         tipoDeGrupo: user.tipoDeGrupo,
         codificacionDeRoles: user.codificacionDeRoles,
-        apodo: user.podo,
+        apodo: user.apodo,
         cuenta: user.cuenta,
         email: user.email,
         situacionLaboral: user.situacionLaboral,
@@ -147,14 +147,14 @@ export const updateUser = async (req, res) => {
     user.apodo = apodo || user.apodo;
     user.situacionLaboral = situacionLaboral || user.situacionLaboral;
     user.cuenta = cuenta || user.cuenta;
-    (user.nombrePersonal = nombrePersonal || user.nombrePersonal),
-      (user.emailPersonal = emailPersonal || user.emailPersonal);
-    (user.fotoURL = fotoURL || user.fotoURL),
-      (user.numeroDeTelefonoMovil =
-        numeroDeTelefonoMovil || user.numeroDeTelefonoMovil),
-      // Guardar los cambios en la base de datos
-      await user.save();
-
+    user.nombrePersonal = nombrePersonal || user.nombrePersonal;
+    user.emailPersonal = emailPersonal || user.emailPersonal;
+    user.fotoURL = fotoURL || user.fotoURL;
+    user.numeroDeTelefonoMovil =
+      numeroDeTelefonoMovil || user.numeroDeTelefonoMovil;
+    // Guardar los cambios en la base de datos
+    await user.save();
+    console.log(user);
     // Responder con los datos actualizados del usuario
     res.json({
       message: "Usuario actualizado con éxito",
@@ -357,6 +357,7 @@ export const updateUserPersonal = async (req, res) => {
 // Login with token cuentas operativas y cuentas personales
 export const getProfileWithToken = async (req, res) => {
   const token = req.headers.authorization && req.headers.authorization; // Obtener el token del header
+  console.log("token");
   if (!token) {
     return res.status(401).json({message: "Token requerido"});
   }
@@ -375,10 +376,12 @@ export const getProfileWithToken = async (req, res) => {
           origenDeLaCuenta: user.origenDeLaCuenta,
           tipoDeGrupo: user.tipoDeGrupo,
           codificacionDeRoles: user.codificacionDeRoles,
-          apodo: user.podo,
+          apodo: user.apodo,
           cuenta: user.cuenta,
           emailPersonal: user.emailPersonal,
           situacionLaboral: user.situacionLaboral,
+          fotoURL: user.fotoURL,
+          numeroDeTelefonoMovil: user.numeroDeTelefonoMovil,
         },
       });
     }
