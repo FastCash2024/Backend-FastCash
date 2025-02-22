@@ -24,7 +24,7 @@ export const handleFileUploadMultiples = async (req, res) => {
   console.log("files", files)
   try {
 
-    // const { contacto, codigo } = body;
+    const { contacto } = body;
 
     // const otpResult = await verificarOTP(contacto, codigo);
     // if (!otpResult.success) {
@@ -52,7 +52,7 @@ export const handleFileUploadMultiples = async (req, res) => {
     const formData = await JSON.parse(body.formData)
     console.log("nivel de prestamos: ", formData.nivelDePrestamo);
 
-    formData.phoneNumber = phoneNumber;
+    formData.phoneNumber = contacto;
     
     const resultApplications = await getApplications(formData['nivelDePrestamo']);
     console.log("resultado aplicacion: ", resultApplications);
