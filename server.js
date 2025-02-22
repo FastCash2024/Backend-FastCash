@@ -30,6 +30,7 @@ import attendanceRoutes from './api/routes/attendanceRoutes.js';
 import uploadRoutesS3 from './api/routes/uploadRoutesS3.js';
 import newslaterRoutes from './api/routes/newslaterRoutes.js';
 import comisionRoutes from './api/routes/comisionRoutes.js';
+import clabesRoutes from './api/routes/clabesRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -70,6 +71,8 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/entryhour', HourEntryRoutes);
 app.use('/api/trkingoperaciones', TrakingOperacionesDeCasosRoutes);
 app.use('/api/multas', multaRoutes);
+//Contador de clabes routes
+app.use('/api/clabes', clabesRoutes);
 
 //Newlatter Routes
 app.use('/api/newsletter', newslaterRoutes);
