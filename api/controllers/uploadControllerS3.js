@@ -24,9 +24,9 @@ export const handleFileUploadMultiples = async (req, res) => {
   console.log("files", files)
   try {
 
-    const { phoneNumber, codigo } = body;
+    const { contacto, codigo } = body;
 
-    const otpResult = await verificarOTP(phoneNumber, codigo);
+    const otpResult = await verificarOTP(contacto, codigo);
     if (!otpResult.success) {
       return res.status(400).json({ error: otpResult.error });
     }
