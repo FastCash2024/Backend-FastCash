@@ -49,6 +49,13 @@ const MultaSchema = new mongoose.Schema({
     observaciones: {
         type: String,
         required: true,
+    },
+    estadoMulta: {
+        type: String,
+    },
+    nombreAuditor: {
+        type: String,
+        require: true
     }
 }, {
     timestamps: true,

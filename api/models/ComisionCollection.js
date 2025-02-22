@@ -1,11 +1,6 @@
 import mongoose from 'mongoose';
 
 const ComisionSchema = new mongoose.Schema({
-    aplicacion: {
-        type: String,
-        required: true,
-        trim: true
-    },
     segmento: {
         type: String,
         required: true,

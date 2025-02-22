@@ -275,7 +275,7 @@ export const updateCreditoAprobado = async (req, res) => {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
-    // console.log("datos de credito: ", updatedCredit);
+    console.log("datos de credito: ", updatedCredit.claveBanco);
 
     let mensajeDispersión = "";
     if (updatedCredit.estadoDeCredito === "Aprobado") {
@@ -284,7 +284,7 @@ export const updateCreditoAprobado = async (req, res) => {
           _id: updatedCredit._id,
           // estadoDeCredito: updatedCredit.estadoDeCredito,
           numeroDeCuenta: updatedCredit.numeroDeCuenta,
-          nombreBanco: updatedCredit.nombreBanco,
+          nombreBanco: updatedCredit.claveBanco,
           nombreDelCliente: updatedCredit.nombreDelCliente,
           valorEnviar: updatedCredit.valorEnviado
 
@@ -682,5 +682,45 @@ export const getUpdateSTP = async (req, res) => {
   } catch (error) {
     console.error("Error en getUpdateSTP:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+
+export const reporteComision = async (req, res) => {
+  try {
+    const { nombreUsuario } = req.query;
+
+    if (!nombreUsuario) {
+      return res.status(400).json({ error: "El parámetro nombreUsuario es obligatorio" });
+    }
+
+    const resultados = await VerificationCollection.aggregate([
+      { $unwind: "$historialDeAsesores" }, // Descomponer el array
+      { $match: { "historialDeAsesores.cuentaPersonal": nombreUsuario } }, // Filtrar por usuario
+      {
+        $group: {
+          _id: {
+            fecha: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$historialDeAsesores.fecha" } } }
+          },
+          totalCasos: { $sum: 1 }, // Contar los casos por día
+          datosAsesor: { $first: "$historialDeAsesores" } // Tomar solo un registro sin repetir
+        }
+      },
+      { $sort: { "_id.fecha": -1 } } // Ordenar por fecha descendente
+    ]);
+
+    // Formateamos la respuesta para eliminar la redundancia
+    const response = resultados.map(item => ({
+      fecha: item._id.fecha,
+      totalCasos: item.totalCasos,
+      nombreAsesor: item.datosAsesor.nombreAsesor,
+      cuentaOperativa: item.datosAsesor.cuentaOperativa,
+      cuentaPersonal: item.datosAsesor.cuentaPersonal
+    }));
+
+    res.json({ data: response });
+  } catch (error) {
+    console.error("Error en reporteComision:", error);
+    res.status(500).json({ error: "Error interno del servidor.", details: error.message });
   }
 };

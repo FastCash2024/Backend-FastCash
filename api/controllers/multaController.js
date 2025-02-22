@@ -3,7 +3,7 @@ import MultaCollection from "../models/MultaCollection.js";
 
 export const addMulta = async (req, res) => {
     try {
-        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion, observaciones, seccionMulta, } = req.body;
+        const { cuentaAuditor, cuentaPersonalAuditor, importeMulta, cuentaOperativa, cuentaPersonal, fechaDeOperacion, fechaDeAuditoria, acotacion, observaciones, seccionMulta, estadoMulta, nombreAuditor} = req.body;
 
         const nuevaMulta = new MultaCollection({
             cuentaAuditor,
@@ -16,6 +16,8 @@ export const addMulta = async (req, res) => {
             acotacion,
             seccionMulta,
             observaciones,
+            estadoMulta,
+            nombreAuditor
         });
 
         await nuevaMulta.save();

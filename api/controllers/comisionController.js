@@ -13,10 +13,9 @@ export const createComision = async (req, res) => {
 
 export const getComisiones = async (req, res) => {
     try {
-        const { aplicacion, segmento, desde, hasta, page = 1, limit = 5 } = req.query;
+        const { segmento, desde, hasta, page = 1, limit = 5 } = req.query;
 
         let filtro = {};
-        if (aplicacion) filtro.aplicacion = aplicacion;
         if (segmento) filtro.segmento = segmento;
         if (desde && hasta) {
             filtro.desde = { $gte: Number(desde) };
@@ -65,12 +64,12 @@ export const updateComision = async (req, res) => {
 
 export const deleteComision = async (req, res) => {
     try {
-        const comisionEliminada = new ComisionCollection.findByIdAndDelete(req.params.id);
+        const comisionEliminada = await ComisionCollection.findByIdAndDelete(req.params.id);
         if (!comisionEliminada) {
             return res.status(404).json({ message: "La comision no existe." })
         }
         res.json({ message: "Comision eliminada!" })
     } catch (error) {
-        res.status(500).json({ message: `Error al actualizar la comision: ${error.message}` });
+        res.status(500).json({ message: `Error al eliminar la comision: ${error.message}` });
     }
 }

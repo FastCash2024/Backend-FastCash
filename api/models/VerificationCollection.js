@@ -25,6 +25,13 @@ const TrackingDeOperacionesSchema = new mongoose.Schema({
   emailAsesor: String,
 });
 
+const HistorialAsesorSchema = new mongoose.Schema({
+  nombreAsesor: String,
+  cuentaOperativa: String,
+  cuentaPersonal: String,
+  fecha: String
+});
+
 // const CuentasBancariasSchema = new mongoose.Schema({
 //   nombreDeBanco: String,
 //   numeroDeCuenta: String,
@@ -102,12 +109,13 @@ const verificationCollectionSchema = new mongoose.Schema({
   fechaRegistroComunicacion: String,
   fechaDeTramitacionDeCobro: String,
   valorLiquidacion: Number,
-
+  claveBanco: Number,
   acotacionesCobrador: [AcotacionSchema],
   acotaciones: [AcotacionSchema],
   trackingDeOperaciones: [TrackingDeOperacionesSchema],
   // cuentasBancarias: [CuentasBancariasSchema],
   stdDispersion: StdDispersionSchema,
+  historialDeAsesores: [HistorialAsesorSchema],
   // stpOrdenDePago: StdDispersionSchema
 }, {
   timestamps: true,
