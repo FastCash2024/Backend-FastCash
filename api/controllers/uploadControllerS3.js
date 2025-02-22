@@ -24,12 +24,12 @@ export const handleFileUploadMultiples = async (req, res) => {
   console.log("files", files)
   try {
 
-    const { contacto, codigo } = body;
+    // const { contacto, codigo } = body;
 
-    const otpResult = await verificarOTP(contacto, codigo);
-    if (!otpResult.success) {
-      return res.status(400).json({ error: otpResult.error });
-    }
+    // const otpResult = await verificarOTP(contacto, codigo);
+    // if (!otpResult.success) {
+    //   return res.status(400).json({ error: otpResult.error });
+    // }
 
     // Verificar que los archivos estén presentes
     if (!req.files || req.files.length === 0) {
