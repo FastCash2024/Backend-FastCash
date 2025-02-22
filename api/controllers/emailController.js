@@ -5,7 +5,7 @@ export async function sendEmail(req, res) {
         service: "Gmail",
         auth: {
             user: "fastcashmxec2024@gmail.com",
-            pass: "idyu xdra fgwe zjyc",
+            pass: "tkhk ntnh wcyr tlql",
         },
     });
     try {
