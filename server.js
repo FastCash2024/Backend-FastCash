@@ -69,7 +69,7 @@ app.use('/api/sms', smsRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/entryhour', HourEntryRoutes);
-app.use('/api/trkingoperaciones', TrakingOperacionesDeCasosRoutes);
+app.use('/api/trakingoperaciones', TrakingOperacionesDeCasosRoutes);
 app.use('/api/multas', multaRoutes);
 //Contador de clabes routes
 app.use('/api/clabes', clabesRoutes);

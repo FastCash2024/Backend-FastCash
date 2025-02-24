@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 
 // Esquema para el Tracking de Operaciones de Casos
 const TrackingDeOperacionesSchema = new mongoose.Schema({
+  numeroDePrestamo: String,
   caso: String,
   seccion: String,
   subID: String,
-  
   codigoDeOperacion: String,
   codigoDeProducto: String,
   operacion: String,

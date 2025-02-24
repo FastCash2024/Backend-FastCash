@@ -12,14 +12,30 @@ export const createTrackings = async (req, res) => {
   }
 };
 
+export const createTracking = async (tracking) => {
+  try {
+    const newTracking = new TrakingOperacionesDeCasos(tracking);
+    await newTracking.save();
+    return "Tracking registrado";
+  } catch (error) {
+    console.error("Error al crear el tracking:", error);
+    return `Error al crear el tracking: ${error.message}`;
+  }
+};
+
+
 
 export const getTrackings = async (req, res) => {
   try {
-    const { asesor, cuenta, fecha, limit = 10, page = 1 } = req.query;
+    const { caso, asesor, cuenta, fecha, limit = 10, page = 1 } = req.query;
 
     const filter = {};
     if (asesor) filter.asesor = { $regex: asesor, $options: "i" };
     if (cuenta) filter.cuenta = { $regex: cuenta, $options: "i" };
+    if (caso) {
+      filter.numeroDePrestamo = { $regex: caso, $options: "i" };
+    }
+
     if (fecha) filter.fecha = fecha;
 
     const totalDocuments = await TrakingOperacionesDeCasos.countDocuments(filter);
@@ -43,24 +59,23 @@ export const getTrackings = async (req, res) => {
 
 
 export const updateTrackingById = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updateData = req.body;
-  
-      const updatedTracking = await TrakingOperacionesDeCasos.findByIdAndUpdate(
-        id,
-        { $set: updateData }, // Se actualizan los campos enviados
-        { new: true, runValidators: true }
-      );
-  
-      if (!updatedTracking) {
-        return res.status(404).json({ message: "Registro no encontrado" });
-      }
-  
-      res.json({ message: "Registro actualizado correctamente", data: updatedTracking });
-    } catch (error) {
-      console.error("Error al actualizar tracking:", error);
-      res.status(500).json({ message: "Error al actualizar el registro." });
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const updatedTracking = await TrakingOperacionesDeCasos.findByIdAndUpdate(
+      id,
+      { $set: updateData }, // Se actualizan los campos enviados
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedTracking) {
+      return res.status(404).json({ message: "Registro no encontrado" });
     }
-  };
-  
+
+    res.json({ message: "Registro actualizado correctamente", data: updatedTracking });
+  } catch (error) {
+    console.error("Error al actualizar tracking:", error);
+    res.status(500).json({ message: "Error al actualizar el registro." });
+  }
+};

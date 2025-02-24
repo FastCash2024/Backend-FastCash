@@ -1,6 +1,7 @@
 import VerificationCollection from '../models/VerificationCollection.js';
 import moment from 'moment';
 import { formatFechaYYYYMMDD } from '../utilities/currentWeek.js';
+import { createTracking } from './TrakingOperacionesDeCasos.js';
 
 function generarSecuencia(count) {
   let base = 15 + Math.floor(Math.floor(count / 999999)) * 1;
@@ -265,6 +266,8 @@ const enviarSolicitudAprobacion = async (credit) => {
 export const updateCreditoAprobado = async (req, res) => {
   try {
 
+    const {estadoDeCredito, ...trackingData} = req.body;
+
     const updatedCredit = await VerificationCollection.findByIdAndUpdate(
       req.params.id,
       { $set: { estadoDeCredito: req.body.estadoDeCredito } },
@@ -275,46 +278,46 @@ export const updateCreditoAprobado = async (req, res) => {
       return res.status(404).json({ message: "Crédito no encontrado" });
     }
 
-    console.log("datos de credito: ", updatedCredit.claveBanco);
+    // console.log("datos de credito: ", updatedCredit.claveBanco);
+    await createTracking(trackingData);
 
     let mensajeDispersión = "";
     if (updatedCredit.estadoDeCredito === "Aprobado") {
       try {
         const dispersionData = await enviarSolicitudAprobacion({
           _id: updatedCredit._id,
-          // estadoDeCredito: updatedCredit.estadoDeCredito,
           numeroDeCuenta: updatedCredit.numeroDeCuenta,
           nombreBanco: updatedCredit.claveBanco,
           nombreDelCliente: updatedCredit.nombreDelCliente,
           valorEnviar: updatedCredit.valorEnviado
-
         });
-        console.log("respuesta de la dispersion :", dispersionData);
+
+        console.log("Respuesta de la dispersión:", dispersionData);
 
         if (!dispersionData || dispersionData.error) {
-          mensajeDispersión = "Orden de dispersión no enviada."
-          return res.status(500).json({
-            message: "Error en la solicitud de aprobación",
-            error: dispersionData?.error || "Error desconocido",
+          mensajeDispersión = "Orden de dispersión no enviada.";
+          await VerificationCollection.findByIdAndUpdate(req.params.id, {
+            $set: { estadoDeCredito: "Pendiente" },
           });
+
+          throw new Error(dispersionData?.error || "Error desconocido en la dispersión");
         }
+
         mensajeDispersión = "Orden de dispersión enviada.";
-        return res.status(200).json({ message: mensajeDispersión })
       } catch (error) {
-        console.error("Error en la solicitud de aprobación:", error);
-        return res.status(500).json({ message: "Error en la solicitud de aprobación", error: error.message });
+
+        await VerificationCollection.findByIdAndUpdate(req.params.id, {
+          $set: { estadoDeCredito: "Pendiente" },
+        });
+        return res.status(500).json({
+          message: "Error en la dispersión, estado revertido a 'Pendiente'",
+          error: error.message
+        });
       }
     }
 
-    return res.json({
+    return res.status(200).json({
       mensajeDispersión,
-      // ...updatedCredit.toObject(),
-      // contactos: [],
-      // sms: [],
-      // acotacionesCobrador: [],
-      // acotaciones: [],
-      // trackingDeOperaciones: [],
-      // cuentasBancarias: [],
     });
   } catch (error) {
     console.error("Error en updateCreditoAprobado:", error);
@@ -510,11 +513,9 @@ export const getReporteCDiario = async (req, res) => {
     const { fecha, estadoDeCredito } = req.query;
     const today = fecha || moment().format('DD/MM/YYYY');
 
-    // Crear el filtro con las condiciones separadas
     const filter = {
       $or: [
         {
-          // Filtrar casos con estadoDeCredito 'Pagado' o 'Pagado con Extensión' según fechaDeReembolso
           $and: [
             {
               $expr: {
@@ -535,7 +536,6 @@ export const getReporteCDiario = async (req, res) => {
           ],
         },
         {
-          // Filtrar casos con estadoDeComunicacion 'Pagará pronto' según fechaRegistroComunicacion
           $and: [
             {
               $expr: {
@@ -695,21 +695,20 @@ export const reporteComision = async (req, res) => {
     }
 
     const resultados = await VerificationCollection.aggregate([
-      { $unwind: "$historialDeAsesores" }, // Descomponer el array
-      { $match: { "historialDeAsesores.cuentaPersonal": nombreUsuario } }, // Filtrar por usuario
+      { $unwind: "$historialDeAsesores" },
+      { $match: { "historialDeAsesores.cuentaPersonal": nombreUsuario } },
       {
         $group: {
           _id: {
             fecha: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$historialDeAsesores.fecha" } } }
           },
-          totalCasos: { $sum: 1 }, // Contar los casos por día
-          datosAsesor: { $first: "$historialDeAsesores" } // Tomar solo un registro sin repetir
+          totalCasos: { $sum: 1 },
+          datosAsesor: { $first: "$historialDeAsesores" }
         }
       },
-      { $sort: { "_id.fecha": -1 } } // Ordenar por fecha descendente
+      { $sort: { "_id.fecha": -1 } }
     ]);
 
-    // Formateamos la respuesta para eliminar la redundancia
     const response = resultados.map(item => ({
       fecha: item._id.fecha,
       totalCasos: item.totalCasos,

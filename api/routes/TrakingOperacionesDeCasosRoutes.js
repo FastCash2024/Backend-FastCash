@@ -4,7 +4,8 @@ import { createTrackings, getTrackings, updateTrackingById } from '../controller
 const router = express.Router();
 
 router.get('/', getTrackings);
-router.get('/add', createTrackings);
-router.get('/update', updateTrackingById);
+router.post('/add', createTrackings);
+router.put('/update', updateTrackingById);
+// router.get('/:subId', getTackingsById);
 
 export default router;
