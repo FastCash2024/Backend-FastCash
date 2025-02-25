@@ -123,6 +123,12 @@ export const verificarOTP = async (telefono, codigo) => {
     return { success: false, error: "El número de teléfono no está registrado o no tiene un OTP válido." };
   }
 
+  setTimeout(async () => {
+    await SmsModel.deleteOne({ telefono, code: codigo });
+    // console.log(`respuesta de eliminacion: ${response}`);
+  }, Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000);
+  
   return { success: true, message: "OTP válido." };
+
 };
 

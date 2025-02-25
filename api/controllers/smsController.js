@@ -20,7 +20,9 @@ const saveOtpLog = async (telefono, code) => {
 
 const sendOTPProvider = async (telefono, code) => {
   try {
-    const encryptedMessage = toHex(code);
+
+    const message = `Tu codigo de verificacion para FastCash es: ${code}`;
+    const encryptedMessage = toHex(message);
 
     const smsPayload = {
       message: encryptedMessage,

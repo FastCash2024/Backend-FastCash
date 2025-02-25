@@ -6,12 +6,12 @@ import { createTracking } from './TrakingOperacionesDeCasos.js';
 function generarSecuencia(count) {
   let base = 15 + Math.floor(Math.floor(count / 999999)) * 1;
   let numero = count <= 999999 ? count + 1 : 1;
-  // Función que genera el número en el formato deseado
+  // Funcion que genera el número en el formato deseado
   const secuencia = `${base}${String(numero).padStart(6, '0')}`;
   return secuencia;
 }
 
-// Crear un nuevo crédito
+// Crear un nuevo credito
 export const createCredit = async (req, res) => {
   const count = await VerificationCollection.countDocuments();
   const generador = generarSecuencia(count);
