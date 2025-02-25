@@ -199,7 +199,6 @@ export const getApplications = async (userData) => {
   try {
     const { numeroDeTelefono, dni, nombreDelCliente, nombreDelProducto } = userData;
 
-    // Buscar préstamos en VerificationCollection según los parámetros dados
     const userLoans = await VerificationCollection.find({
       numeroDeTelefonoMovil: numeroDeTelefono,
       nombreDelCliente,
@@ -207,10 +206,8 @@ export const getApplications = async (userData) => {
       dni
     });
 
-    // Buscar todas las aplicaciones
     const applications = await Application.find();
 
-    // Si el usuario tiene un préstamo en estado "Dispersado", bloquear todas las apps
     const tieneCreditoDispersado = userLoans.some(loan => loan.estadoDeCredito === "Dispersado");
     if (tieneCreditoDispersado) {
       return applications.map(app => ({
@@ -221,34 +218,46 @@ export const getApplications = async (userData) => {
       }));
     }
 
-    // Si solo tiene créditos en "Pagado" o "Pagado con extensión", buscar el siguiente nivel
     const ultimoPrestamo = userLoans.sort((a, b) => parseFloat(b.nivel) - parseFloat(a.nivel))[0];
 
     return applications.map(app => {
       const nivelesOrdenados = app.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
-      let nivelCorrespondiente = nivelesOrdenados[0]; // Por defecto, nivel 1
+
+      if (!nivelesOrdenados.length) {
+        return {
+          nombre: app.nombre,
+          icon: app.icon,
+          calificacion: app.calificacion,
+          estadoDeNivel: "No disponible"
+        };
+      }
+
+      let nivelCorrespondiente = nivelesOrdenados[0];
 
       if (ultimoPrestamo && app.nombre === ultimoPrestamo.nombreDelProducto) {
-        const nivelIndex = nivelesOrdenados.findIndex(n => n.nivelDePrestamo === ultimoPrestamo.nivel);
+        const nivelIndex = nivelesOrdenados.findIndex(n => String(n.nivelDePrestamo) === String(ultimoPrestamo.nivel));
+        
         if (nivelIndex !== -1 && nivelIndex + 1 < nivelesOrdenados.length) {
           nivelCorrespondiente = nivelesOrdenados[nivelIndex + 1];
         }
       }
 
+      console.log("niveles ordenados: ", nivelesOrdenados);
+
       return {
         nombre: app.nombre,
         icon: app.icon,
         calificacion: app.calificacion,
-        PrestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1].valorPrestadoMasInteres,
-        interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1].interesDiario,
-        interesDiario: nivelCorrespondiente.interesDiario,
-        interesTotal: nivelCorrespondiente.interesTotal,
-        valorDepositoLiquido: nivelCorrespondiente.valorDepositoLiquido,
-        valorExtencion: nivelCorrespondiente.valorExtencion,
-        valorPrestado: nivelCorrespondiente.valorPrestadoMasInteres,
-        valorPrestamoMenosInteres: nivelCorrespondiente.valorPrestamoMenosInteres,
+        PrestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres || "N/A",
+        interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.interesDiario || "N/A",
+        interesDiario: nivelCorrespondiente?.interesDiario || "N/A",
+        interesTotal: nivelCorrespondiente?.interesTotal || "N/A",
+        valorDepositoLiquido: nivelCorrespondiente?.valorDepositoLiquido || "N/A",
+        valorExtencion: nivelCorrespondiente?.valorExtencion || "N/A",
+        valorPrestado: nivelCorrespondiente?.valorPrestadoMasInteres || "N/A",
+        valorPrestamoMenosInteres: nivelCorrespondiente?.valorPrestamoMenosInteres || "N/A",
         estadoDeNivel: "Disponible",
-        nivelDePrestamo: nivelCorrespondiente.nivelDePrestamo
+        nivelDePrestamo: nivelCorrespondiente?.nivelDePrestamo || "N/A"
       };
     });
 
@@ -256,3 +265,4 @@ export const getApplications = async (userData) => {
     throw new Error(`Error al obtener las aplicaciones: ${error.message}`);
   }
 };
+
