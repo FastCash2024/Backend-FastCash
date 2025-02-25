@@ -54,6 +54,8 @@ const userSchema = new mongoose.Schema({
   icon: {
     type: String
   },
+  prestamoMaximo: String,
+  interesDiarioMaximo: String,
   niveles: [tipoApplicationSchema],
 }, {
   timestamps: true,
