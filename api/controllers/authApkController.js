@@ -208,7 +208,7 @@ export const getApplications = async (userData) => {
 
     const applications = await Application.find();
 
-    const tieneCreditoDispersado = userLoans.some(loan => loan.estadoDeCredito === "Dispersado");
+    const tieneCreditoDispersado = userLoans.some(loan => loan.estadoDeCredito.trim().toLowerCase() === "dispersado");
     if (tieneCreditoDispersado) {
       return applications
         .map(app => ({
@@ -217,8 +217,10 @@ export const getApplications = async (userData) => {
           calificacion: app.calificacion,
           estadoDeNivel: "No disponible"
         }))
-        .filter(app => app.nombre && app.icon && app.calificacion); // Filtrar incompletos
+        .filter(app => app.nombre && app.icon && app.calificacion);
     }
+
+    const tieneCreditoReprobado = userLoans.some(loan => loan.estadoDeCredito.trim().toLowerCase() === "reprobado");
 
     const ultimoPrestamo = userLoans.sort((a, b) => parseFloat(b.nivel) - parseFloat(a.nivel))[0];
 
@@ -227,7 +229,7 @@ export const getApplications = async (userData) => {
         const nivelesOrdenados = app.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
 
         if (!nivelesOrdenados.length) {
-          return null; // No tiene niveles, se descarta
+          return null;
         }
 
         let nivelCorrespondiente = nivelesOrdenados[0];
@@ -240,7 +242,6 @@ export const getApplications = async (userData) => {
           }
         }
 
-        console.log("niveles ordenados: ", nivelesOrdenados);
 
         const result = {
           nombre: app.nombre,
@@ -254,16 +255,15 @@ export const getApplications = async (userData) => {
           valorExtencion: nivelCorrespondiente?.valorExtencion,
           valorPrestado: nivelCorrespondiente?.valorPrestadoMasInteres,
           valorPrestamoMenosInteres: nivelCorrespondiente?.valorPrestamoMenosInteres,
-          estadoDeNivel: "Disponible",
+          estadoDeNivel: tieneCreditoReprobado ? "No disponible" : "Disponible",
           nivelDePrestamo: nivelCorrespondiente?.nivelDePrestamo
         };
 
-        // Verificar si todos los datos requeridos están presentes
         return Object.values(result).some(value => value === undefined || value === null)
           ? null
           : result;
       })
-      .filter(app => app !== null); // Filtrar los nulos
+      .filter(app => app !== null);
 
   } catch (error) {
     throw new Error(`Error al obtener las aplicaciones: ${error.message}`);

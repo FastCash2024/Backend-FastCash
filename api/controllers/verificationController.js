@@ -508,6 +508,80 @@ export const getReporteDiario = async (req, res) => {
   }
 };
 
+export const getReporteDiarioTotales = async (req, res) => {
+  try {
+    const { fecha, estadoDeCredito } = req.query;
+    const today = fecha || moment().format('DD/MM/YYYY');
+
+    const filter = {
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: '%d/%m/%Y',
+              date: { $toDate: '$fechaDeTramitacionDelCaso' },
+            },
+          },
+          today,
+        ],
+      },
+    };
+
+    console.log('Filtro:', filter);
+    if (estadoDeCredito) {
+      const palabras = estadoDeCredito.split(/[,?]/).map((palabra) => palabra.trim());
+      filter.estadoDeCredito = { $in: palabras };
+    }
+
+    const casosDelDia = await VerificationCollection.find(filter);
+    console.log('Casos del día:', casosDelDia);
+
+    if (casosDelDia.length === 0) {
+      return res.json({
+        data: {},
+        message: `No se encontraron casos del día ${today} con el estado ${estadoDeCredito || 'N/A'}.`,
+      });
+    }
+
+    const totalesGenerales = {
+      aprobados10am: 0,
+      reprobados10am: 0,
+      aprobados12am: 0,
+      reprobados12am: 0,
+      aprobados14pm: 0,
+      reprobados14pm: 0,
+      aprobados16pm: 0,
+      reprobados16pm: 0,
+      aprobadosTotal: 0,
+      reprobadosTotal: 0,
+    };
+
+    casosDelDia.forEach((caso) => {
+      const hora = new Date(caso.fechaDeTramitacionDelCaso).getUTCHours();
+
+      if (caso.estadoDeCredito === 'Aprobado') {
+        if (hora <= 10) totalesGenerales.aprobados10am += 1;
+        if (hora > 10 && hora <= 12) totalesGenerales.aprobados12am += 1;
+        if (hora > 12 && hora <= 14) totalesGenerales.aprobados14pm += 1;
+        if (hora > 14 && hora <= 16) totalesGenerales.aprobados16pm += 1;
+        totalesGenerales.aprobadosTotal += 1;
+      } else if (caso.estadoDeCredito === 'Reprobado') {
+        if (hora <= 10) totalesGenerales.reprobados10am += 1;
+        if (hora > 10 && hora <= 12) totalesGenerales.reprobados12am += 1;
+        if (hora > 12 && hora <= 14) totalesGenerales.reprobados14pm += 1;
+        if (hora > 14 && hora <= 16) totalesGenerales.reprobados16pm += 1;
+        totalesGenerales.reprobadosTotal += 1;
+      }
+    });
+
+    res.json({ totalesGenerales });
+  } catch (error) {
+    console.error('Error al obtener el reporte diario:', error);
+    res.status(500).json({ message: 'Error al obtener los datos' });
+  }
+};
+
+
 export const getReporteCDiario = async (req, res) => {
   try {
     const { fecha, estadoDeCredito } = req.query;
@@ -652,6 +726,141 @@ export const getReporteCDiario = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener los datos' });
   }
 };
+
+export const getReporteCDiarioTotales = async (req, res) => {
+  try {
+    const { fecha, estadoDeCredito } = req.query;
+    const today = fecha || moment().format('DD/MM/YYYY');
+
+    const filter = {
+      $or: [
+        {
+          $and: [
+            {
+              $expr: {
+                $eq: [
+                  {
+                    $dateToString: {
+                      format: '%d/%m/%Y',
+                      date: { $toDate: '$fechaDeTramitacionDeCobro' },
+                    },
+                  },
+                  today,
+                ],
+              },
+            },
+            {
+              estadoDeCredito: { $in: ['Pagado', 'Pagado con Extensión'] },
+            },
+          ],
+        },
+        {
+          $and: [
+            {
+              $expr: {
+                $eq: [
+                  {
+                    $dateToString: {
+                      format: '%d/%m/%Y',
+                      date: { $toDate: '$fechaRegistroComunicacion' },
+                    },
+                  },
+                  today,
+                ],
+              },
+            },
+            {
+              estadoDeComunicacion: 'Pagará pronto',
+            },
+          ],
+        },
+      ],
+    };
+
+    const casosDelDia = await VerificationCollection.find(filter);
+
+    console.log("Casos del día:", casosDelDia.length);
+
+    if (casosDelDia.length === 0) {
+      return res.json({
+        data: {},
+        message: `No se encontraron casos para el día ${today}.`,
+      });
+    }
+
+    // Inicializar totales
+    let totales = {
+      pagos10am: 0,
+      ptp10am: 0,
+      tasaRecuperacion10am: 0,
+      pagos12am: 0,
+      ptp12am: 0,
+      tasaRecuperacion12am: 0,
+      pagos2pm: 0,
+      ptp2pm: 0,
+      tasaRecuperacion2pm: 0,
+      pagos4pm: 0,
+      ptp4pm: 0,
+      tasaRecuperacion4pm: 0,
+      pagos6pm: 0,
+      ptp6pm: 0,
+      tasaRecuperacion6pm: 0,
+      pagosTotal: 0,
+      tasaRecuperacionTotal: 0,
+    };
+
+    casosDelDia.forEach((caso) => {
+      const fechaReferencia =
+        caso.estadoDeCredito === 'Pagado' || caso.estadoDeCredito === 'Pagado con Extensión'
+          ? caso.fechaDeTramitacionDeCobro
+          : caso.fechaRegistroComunicacion;
+
+      const hora = new Date(fechaReferencia).getHours();
+      const monto = parseFloat(caso.valorSolicitado || 0);
+
+      if (caso.estadoDeCredito === 'Pagado' || caso.estadoDeCredito === 'Pagado con Extensión') {
+        if (hora <= 10) {
+          totales.pagos10am += 1;
+          totales.tasaRecuperacion10am += monto;
+        }
+        if (hora > 10 && hora <= 12) {
+          totales.pagos12am += 1;
+          totales.tasaRecuperacion12am += monto;
+        }
+        if (hora > 12 && hora <= 14) {
+          totales.pagos2pm += 1;
+          totales.tasaRecuperacion2pm += monto;
+        }
+        if (hora > 14 && hora <= 16) {
+          totales.pagos4pm += 1;
+          totales.tasaRecuperacion4pm += monto;
+        }
+        if (hora > 16 && hora <= 18) {
+          totales.pagos6pm += 1;
+          totales.tasaRecuperacion6pm += monto;
+        }
+        totales.pagosTotal += 1;
+        totales.tasaRecuperacionTotal += monto;
+      } else if (caso.estadoDeComunicacion === 'Pagará pronto') {
+        if (hora <= 10) totales.ptp10am += 1;
+        if (hora > 10 && hora <= 12) totales.ptp12am += 1;
+        if (hora > 12 && hora <= 14) totales.ptp2pm += 1;
+        if (hora > 14 && hora <= 16) totales.ptp4pm += 1;
+        if (hora > 16 && hora <= 18) totales.ptp6pm += 1;
+      }
+    });
+
+    res.json({ data: totales });
+
+  } catch (error) {
+    console.error('Error al obtener los datos de totales:', error);
+    res.status(500).json({ message: 'Error al obtener los datos' });
+  }
+};
+
+
+
+
 
 export const getUpdateSTP = async (req, res) => {
   try {
