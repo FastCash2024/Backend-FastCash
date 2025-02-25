@@ -248,7 +248,7 @@ export const getApplications = async (userData) => {
         nombre: app.nombre,
         icon: app.icon,
         calificacion: app.calificacion,
-        PrestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres || "N/A",
+        prestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres || "N/A",
         interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.interesDiario || "N/A",
         interesDiario: nivelCorrespondiente?.interesDiario || "N/A",
         interesTotal: nivelCorrespondiente?.interesTotal || "N/A",
