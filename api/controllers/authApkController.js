@@ -2,6 +2,7 @@
 import { FormModel } from '../models/FormModel.js'; // Asegúrate de usar la ruta correcta
 import Application from '../models/ApplicationsCollection.js';
 import { verificarOTP } from './uploadControllerS3.js';
+import VerificationCollection from '../models/VerificationCollection.js';
 
 // Obtener todos los usuarios
 export const getFilterUsers = async (req, res) => {
@@ -64,7 +65,7 @@ export const getFilterUsersApk = async (req, res) => {
       const formData = { ...users[0].formData }
       delete formData['contactos']
       delete formData['sms']
-      const resultAplication = await getApplications(formData['nivelDePrestamo'])
+      const resultAplication = await getApplications(formData)
       console.log("resultado aplicacion: ", resultAplication);
       const dataRes = {
         userID: users[0].id,
@@ -175,7 +176,7 @@ export const getChatsUser = async (req, res) => {
         _id: form._id,
         nombreCompleto: `${nombres} ${apellidos}`,
         contacto,
-        cantidadSms: sms?.length 
+        cantidadSms: sms?.length
       };
     });
 
@@ -194,31 +195,63 @@ export const getChatsUser = async (req, res) => {
   }
 };
 
-export const getApplications = async (nivelDePrestamo) => {
+export const getApplications = async (userData) => {
   try {
-    const applications = await Application.find({ 'niveles.nivelDePrestamo': nivelDePrestamo });
+    const { numeroDeTelefono, dni, nombreDelCliente, nombreDelProducto } = userData;
 
-    const result = applications.map(application => {
-      const nivelesOrdenados = application.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
+    // Buscar préstamos en VerificationCollection según los parámetros dados
+    const userLoans = await VerificationCollection.find({
+      numeroDeTelefonoMovil: numeroDeTelefono,
+      nombreDelCliente,
+      nombreDelProducto,
+      dni
+    });
 
-      const nivelUsuario = nivelesOrdenados.find(n => n.nivelDePrestamo === nivelDePrestamo);
-      const ultimoNivel = nivelesOrdenados[nivelesOrdenados.length - 1];
+    // Buscar todas las aplicaciones
+    const applications = await Application.find();
+
+    // Si el usuario tiene un préstamo en estado "Dispersado", bloquear todas las apps
+    const tieneCreditoDispersado = userLoans.some(loan => loan.estadoDeCredito === "Dispersado");
+    if (tieneCreditoDispersado) {
+      return applications.map(app => ({
+        nombre: app.nombre,
+        icon: app.icon,
+        calificacion: app.calificacion,
+        estadoDeNivel: "No disponible"
+      }));
+    }
+
+    // Si solo tiene créditos en "Pagado" o "Pagado con extensión", buscar el siguiente nivel
+    const ultimoPrestamo = userLoans.sort((a, b) => parseFloat(b.nivel) - parseFloat(a.nivel))[0];
+
+    return applications.map(app => {
+      const nivelesOrdenados = app.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
+      let nivelCorrespondiente = nivelesOrdenados[0]; // Por defecto, nivel 1
+
+      if (ultimoPrestamo && app.nombre === ultimoPrestamo.nombreDelProducto) {
+        const nivelIndex = nivelesOrdenados.findIndex(n => n.nivelDePrestamo === ultimoPrestamo.nivel);
+        if (nivelIndex !== -1 && nivelIndex + 1 < nivelesOrdenados.length) {
+          nivelCorrespondiente = nivelesOrdenados[nivelIndex + 1];
+        }
+      }
 
       return {
-        nombre: application.nombre,
-        icon: application.icon,
-        calificacion: application.calificacion,
-        interesDiario: nivelUsuario.interesDiario || "undefined",
-        interesTotal: nivelUsuario.interesTotal || "undefined",
-        valorDepositoLiquido: nivelUsuario.valorDepositoLiquido || "undefined",
-        valorExtencion: nivelUsuario.valorExtencion || "NaN",
-        valorPrestado: nivelUsuario.valorPrestadoMasInteres || "undefined",
-        valorPrestamoMenosInteres: nivelUsuario.valorPrestamoMenosInteres || "NaN",
-        prestamoMaximo: ultimoNivel.toObject(),
+        nombre: app.nombre,
+        icon: app.icon,
+        calificacion: app.calificacion,
+        PrestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1].valorPrestadoMasInteres,
+        interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1].interesDiario,
+        interesDiario: nivelCorrespondiente.interesDiario,
+        interesTotal: nivelCorrespondiente.interesTotal,
+        valorDepositoLiquido: nivelCorrespondiente.valorDepositoLiquido,
+        valorExtencion: nivelCorrespondiente.valorExtencion,
+        valorPrestado: nivelCorrespondiente.valorPrestadoMasInteres,
+        valorPrestamoMenosInteres: nivelCorrespondiente.valorPrestamoMenosInteres,
+        estadoDeNivel: "Disponible",
+        nivelDePrestamo: nivelCorrespondiente.nivelDePrestamo
       };
     });
 
-    return result;
   } catch (error) {
     throw new Error(`Error al obtener las aplicaciones: ${error.message}`);
   }
