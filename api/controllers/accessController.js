@@ -43,7 +43,8 @@ export const getAllUsers = async (req, res) => {
     const filter = {};
     
     if (tipoDeGrupo) {
-      filter.tipoDeGrupo = { $regex: tipoDeGrupo, $options: "i" }; // Insensible a mayúsculas
+      const palabras = tipoDeGrupo.split(',').map(palabra => palabra.trim());
+      filter.tipoDeGrupo = palabras;
     }
 
     if (situacionLaboral) {
@@ -86,7 +87,7 @@ export const getAllUsers = async (req, res) => {
       currentPage: pageInt,
       totalPages,
       totalDocuments,
-    });
+    }); 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
