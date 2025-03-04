@@ -197,10 +197,14 @@ export const getChatsUser = async (req, res) => {
 
 export const getApplications = async (userData) => {
   try {
-    const { numeroDeTelefono, dni, nombreDelCliente, nombreDelProducto } = userData;
+    const { contacto, dni, nombreDelCliente, nombreDelProducto } = userData;
+
+    if (!contacto || !dni || !nombreDelCliente || !nombreDelProducto) {
+      throw new Error("Todos los campos (numeroDeTelefono, dni, nombreDelCliente, nombreDelProducto) son obligatorios.");
+    }
 
     const userLoans = await VerificationCollection.find({
-      numeroDeTelefonoMovil: numeroDeTelefono,
+      numeroDeTelefonoMovil: contacto,
       nombreDelCliente,
       nombreDelProducto,
       dni

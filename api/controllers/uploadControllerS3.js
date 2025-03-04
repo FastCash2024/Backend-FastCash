@@ -26,11 +26,6 @@ export const handleFileUploadMultiples = async (req, res) => {
 
     const { contacto } = body;
 
-    // const otpResult = await verificarOTP(contacto, codigo);
-    // if (!otpResult.success) {
-    //   return res.status(400).json({ error: otpResult.error });
-    // }
-
     // Verificar que los archivos estén presentes
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -50,11 +45,11 @@ export const handleFileUploadMultiples = async (req, res) => {
       return res.status(400).json({ error: 'Debe enviar al menos un archivo' });
     }
     const formData = await JSON.parse(body.formData)
-    console.log("nivel de prestamos: ", formData.nivelDePrestamo);
+    // console.log("nivel de prestamos: ", formData.nivelDePrestamo);
 
     formData.phoneNumber = contacto;
     
-    const resultApplications = await getApplications(formData['nivelDePrestamo']);
+    const resultApplications = await getApplications(formData);
     console.log("resultado aplicacion: ", resultApplications);
 
     // Crear un nuevo documento en la base de datos
