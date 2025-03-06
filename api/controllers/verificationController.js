@@ -226,7 +226,7 @@ const enviarSolicitudAprobacion = async (credit) => {
     valorEnviar: credit.valorEnviar,
   };
 
-  console.log("data enviaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar: ", dataEnviar);
+  // console.log("data enviaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar: ", dataEnviar);
 
   try {
     const response = await fetch(url, {
