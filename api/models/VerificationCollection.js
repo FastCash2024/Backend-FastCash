@@ -76,6 +76,7 @@ const HistorialTramitacionDeCasos = new mongoose.Schema({
 
   numeroDeCuenta: String,
   nombreBanco: String,
+  dni: String,
 
   registroDeNotas: String,
   nombreDelProducto: String,

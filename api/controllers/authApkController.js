@@ -197,77 +197,80 @@ export const getChatsUser = async (req, res) => {
 
 export const getApplications = async (userData) => {
   try {
-    const { contacto, dni, nombreDelCliente, nombreDelProducto } = userData;
+    const { contacto, dni, apellidos, nombres } = userData;
+    const nombreDelCliente = `${nombres} ${apellidos}`;
 
-    if (!contacto || !dni || !nombreDelCliente || !nombreDelProducto) {
-      throw new Error("Todos los campos (numeroDeTelefono, dni, nombreDelCliente, nombreDelProducto) son obligatorios.");
+    if (!contacto || !dni || !nombreDelCliente) {
+      throw new Error("Todos los campos (numeroDeTelefono, dni, nombreDelCliente) son obligatorios.");
     }
 
     const userLoans = await VerificationCollection.find({
       numeroDeTelefonoMovil: contacto,
       nombreDelCliente,
-      nombreDelProducto,
       dni
     });
 
     const applications = await Application.find();
 
-    const tieneCreditoDispersado = userLoans.some(loan => loan.estadoDeCredito.trim().toLowerCase() === "dispersado");
-    if (tieneCreditoDispersado) {
-      return applications
-        .map(app => ({
+    if (userLoans.length === 0) {
+      return applications.map(app => {
+        const nivel1 = app.niveles.find(n => n.nivelDePrestamo === 1) || {};
+        return {
           nombre: app.nombre,
           icon: app.icon,
           calificacion: app.calificacion,
-          estadoDeNivel: "No disponible"
-        }))
-        .filter(app => app.nombre && app.icon && app.calificacion);
+          prestamoMaximo: nivel1.valorPrestadoMasInteres || 0,
+          interesDiarioMaximo: nivel1.interesDiario || 0,
+          interesDiario: nivel1.interesDiario || 0,
+          interesTotal: nivel1.interesTotal || 0,
+          valorDepositoLiquido: nivel1.valorDepositoLiquido || 0,
+          valorExtencion: nivel1.valorExtencion || 0,
+          valorPrestado: nivel1.valorPrestadoMasInteres || 0,
+          valorPrestamoMenosInteres: nivel1.valorPrestamoMenosInteres || 0,
+          estadoDeNivel: "Disponible",
+          nivelDePrestamo: 1
+        };
+      });
     }
 
-    const tieneCreditoReprobado = userLoans.some(loan => loan.estadoDeCredito.trim().toLowerCase() === "reprobado");
+    // 🔹 Si hay algún crédito no pagado, TODAS las aplicaciones serán "No disponible"
+    const tieneCreditoNoPagado = userLoans.some(loan => loan.estadoDeCredito.trim().toLowerCase() !== "pagado");
 
-    const ultimoPrestamo = userLoans.sort((a, b) => parseFloat(b.nivel) - parseFloat(a.nivel))[0];
+    return applications.map(app => {
+      const nivelesOrdenados = app.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
 
-    return applications
-      .map(app => {
-        const nivelesOrdenados = app.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
+      if (!nivelesOrdenados.length) return null;
 
-        if (!nivelesOrdenados.length) {
-          return null;
-        }
+      // 🔹 Contar cuántos préstamos pagados tiene el usuario en esta app
+      const prestamosPagados = userLoans.filter(loan =>
+        loan.estadoDeCredito.trim().toLowerCase() === "pagado" && loan.nombreDelProducto === app.nombre
+      ).length;
 
-        let nivelCorrespondiente = nivelesOrdenados[0];
+      console.log("📌 Prestamos Pagados:", prestamosPagados);
+      console.log("📌 Buscando nivel:", prestamosPagados + 1);
+      console.log("📌 Niveles Ordenados:", nivelesOrdenados.map(n => n.nivelDePrestamo));
 
-        if (ultimoPrestamo && app.nombre === ultimoPrestamo.nombreDelProducto) {
-          const nivelIndex = nivelesOrdenados.findIndex(n => String(n.nivelDePrestamo) === String(ultimoPrestamo.nivel));
-          
-          if (nivelIndex !== -1 && nivelIndex + 1 < nivelesOrdenados.length) {
-            nivelCorrespondiente = nivelesOrdenados[nivelIndex + 1];
-          }
-        }
+      const nivelCorrespondiente = nivelesOrdenados.find(n => Number(n.nivelDePrestamo) === prestamosPagados + 1);
+
+      console.log("📌 Nivel Correspondiente encontrado:", nivelCorrespondiente);
 
 
-        const result = {
-          nombre: app.nombre,
-          icon: app.icon,
-          calificacion: app.calificacion,
-          prestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres,
-          interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.interesDiario,
-          interesDiario: nivelCorrespondiente?.interesDiario,
-          interesTotal: nivelCorrespondiente?.interesTotal,
-          valorDepositoLiquido: nivelCorrespondiente?.valorDepositoLiquido,
-          valorExtencion: nivelCorrespondiente?.valorExtencion,
-          valorPrestado: nivelCorrespondiente?.valorPrestadoMasInteres,
-          valorPrestamoMenosInteres: nivelCorrespondiente?.valorPrestamoMenosInteres,
-          estadoDeNivel: tieneCreditoReprobado ? "No disponible" : "Disponible",
-          nivelDePrestamo: nivelCorrespondiente?.nivelDePrestamo
-        };
-
-        return Object.values(result).some(value => value === undefined || value === null)
-          ? null
-          : result;
-      })
-      .filter(app => app !== null);
+      return {
+        nombre: app.nombre,
+        icon: app.icon,
+        calificacion: app.calificacion,
+        prestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres,
+        interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.interesDiario,
+        interesDiario: nivelCorrespondiente?.interesDiario || 0,
+        interesTotal: nivelCorrespondiente?.interesTotal || 0,
+        valorDepositoLiquido: nivelCorrespondiente?.valorDepositoLiquido || 0,
+        valorExtencion: nivelCorrespondiente?.valorExtencion || 0,
+        valorPrestado: nivelCorrespondiente?.valorPrestadoMasInteres || 0,
+        valorPrestamoMenosInteres: nivelCorrespondiente?.valorPrestamoMenosInteres || 0,
+        estadoDeNivel: tieneCreditoNoPagado ? "No disponible" : (nivelCorrespondiente ? "Disponible" : "No disponible"),
+        nivelDePrestamo: tieneCreditoNoPagado ? 1 : (nivelCorrespondiente?.nivelDePrestamo || null)
+      };
+    }).filter(app => app !== null);
 
   } catch (error) {
     throw new Error(`Error al obtener las aplicaciones: ${error.message}`);

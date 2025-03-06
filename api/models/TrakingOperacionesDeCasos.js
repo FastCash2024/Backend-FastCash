@@ -2,19 +2,15 @@ import mongoose from 'mongoose';
 
 // Esquema para el Tracking de Operaciones de Casos
 const TrackingDeOperacionesSchema = new mongoose.Schema({
-  numeroDePrestamo: String,
-  caso: String,
-  seccion: String,
-  subID: String,
-  codigoDeOperacion: String,
-  codigoDeProducto: String,
-  operacion: String,
-  modificacion: String,
-  fecha: String,
-  cuenta: String,
-  asesor: String,
-  emailAsesor: String,
-  acotacion: String
+  descripcionDeExcepcion: String,
+  nomenclatura: String,
+  cuentaOperadora: String,
+  cuentaPersonal: String,
+  codigoDeSistema: String,
+  codigoDeOperacion: String, 
+  contenidoDeOperacion: String,
+  fechaDeOperacion: String,
+  caso: String 
 });
 
 
