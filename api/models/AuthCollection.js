@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema(
     emailPersonal: String,
     fotoURL: String,
     numeroDeTelefonoMovil: String,
+
+    cuentaAuditor: String,
+    cuentaPersonalAuditor: String,
   },
   {
     timestamps: true,

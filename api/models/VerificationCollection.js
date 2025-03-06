@@ -58,9 +58,9 @@ const StdDispersionSchema = new mongoose.Schema({
   firma: String
 }, { _id: false });
 
-const verificationCollectionSchema = new mongoose.Schema({
-  // ----------DATOS DE TABLA --------Recolección y Validación de Datos
-  // Datos enviados del celu
+
+const HistorialTramitacionDeCasos = new mongoose.Schema({
+  subID: String, // Caso
   numeroDePrestamo: String,
   idDeSubFactura: String,
   estadoDeCredito: String,
@@ -79,9 +79,9 @@ const verificationCollectionSchema = new mongoose.Schema({
 
   registroDeNotas: String,
   nombreDelProducto: String,
-  fechaDeReembolso: String,
-  fechaDeCreacionDeLaTarea: String,
-  fechaDeTramitacionDelCaso: String,
+  fechaDeReembolso: String, // Cuando el cliente pago la deuda 
+  fechaDeCreacionDeLaTarea: String, // cuando el caso se manda a solicitud
+  fechaDeTramitacionDelCaso: String, // fecha de asignacion del caso
   nombreDeLaEmpresa: String,
   cantidadDispersada: String,
   fechaDeDispersion: String,
@@ -105,8 +105,73 @@ const verificationCollectionSchema = new mongoose.Schema({
   // Asesor actual asignado
   asesor: String,
   emailAsesor: String,
-  estadoDeComunicacion: String,
-  fechaRegistroComunicacion: String,
+  estadoDeComunicacion: String, // Para reporte de Casos de cobranza
+  fechaRegistroComunicacion: String, // Para reporte de Casos de cobranza
+  fechaDeTramitacionDeCobro: String,
+  valorLiquidacion: Number,
+  claveBanco: Number,
+  acotacionesCobrador: [AcotacionSchema],
+  acotaciones: [AcotacionSchema],
+  trackingDeOperaciones: [TrackingDeOperacionesSchema],
+  // cuentasBancarias: [CuentasBancariasSchema],
+  stdDispersion: StdDispersionSchema,
+  historialDeAsesores: [HistorialAsesorSchema],
+  // stpOrdenDePago: StdDispersionSchema
+  cuentaClaveParaCobro: String,
+  stpOrdenDeDispersion: Object
+}, { _id: false });
+
+
+
+const verificationCollectionSchema = new mongoose.Schema({
+  // ----------DATOS DE TABLA --------Recolección y Validación de Datos
+  // Datos enviados del celu
+  numeroDePrestamo: String,
+  idDeSubFactura: String,
+  estadoDeCredito: String,
+  nombreDelCliente: String,
+  numeroDeTelefonoMovil: String,
+  clienteNuevo: String,
+  valorSolicitado: Number,
+  valorEnviado: Number,
+
+  valorPrestamoMenosInteres: Number,
+  valorExtencion: Number,
+  icon: String,
+
+  numeroDeCuenta: String,
+  nombreBanco: String,
+
+  registroDeNotas: String,
+  nombreDelProducto: String,
+  fechaDeReembolso: String, // Cuando el cliente pago la deuda 
+  fechaDeCreacionDeLaTarea: String, // cuando el caso se manda a solicitud
+  fechaDeTramitacionDelCaso: String, // fecha de asignacion del caso
+  nombreDeLaEmpresa: String,
+  cantidadDispersada: String,
+  fechaDeDispersion: String,
+  
+  // Datos capturados del caso
+  contactos: [ContactosSchema],
+  sms: [SmsSchema],
+
+  // Usuario de verificación asignado
+  apodoDeUsuarioDeVerificacion: String,
+  cuentaVerificador: String,
+
+  // Usuario de cobro asignado
+  apodoDeUsuarioDeCobro: String,
+  cuentaCobrador: String,
+
+  // Usuario de auditoría asignado
+  apodoDeUsuarioDeAuditoria: String,
+  cuentaAuditor: String,
+
+  // Asesor actual asignado
+  asesor: String,
+  emailAsesor: String,
+  estadoDeComunicacion: String, // Para reporte de Casos de cobranza
+  fechaRegistroComunicacion: String, // Para reporte de Casos de cobranza
   fechaDeTramitacionDeCobro: String,
   valorLiquidacion: Number,
   claveBanco: Number,

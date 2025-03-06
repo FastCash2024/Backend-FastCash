@@ -55,7 +55,7 @@ app.use('/api/users', accessRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/counter', counterRoutes);
-app.use('/api/otp', otpRoutes);
+app.use('/api/otp', otpRoutes);     // 
 //Gestion de Aplicaciones Routes
 app.use('/api/applications', applicationsRoutes);
 // app.use('/api/authApk', authApkRoutes);
@@ -91,7 +91,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-
+         
 
 
 
