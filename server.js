@@ -48,35 +48,35 @@ connectDB();
 app.use(express.json({ limit: '100mb' })); // Ajusta el límite según el tamaño de las solicitudes esperadas
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // Rutas
-app.use('/api/cases', caseRoutes);
-app.use('/api/audits', auditRoutes);
-app.use('/api/verification', verificationRoutes);
-app.use('/api/users', accessRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/email', emailRoutes);
-app.use('/api/counter', counterRoutes);
-app.use('/api/otp', otpRoutes);     // 
+app.use('/api/cases', caseRoutes);// No sirve
+app.use('/api/audits', auditRoutes);// No sirve
+app.use('/api/verification', verificationRoutes); // CasesDB ---> manejador de casos
+app.use('/api/users', accessRoutes); // CasesDB ---> distribuidor de casos RENOMBRAR
+app.use('/api/auth', authRoutes); // AuthAndSMS ---> LoginSIstema
+app.use('/api/email', emailRoutes); // AuthAndSMS ---> sistema de gmails
+app.use('/api/counter', counterRoutes); // CasesDB ---> contador de numerosDeCaso
+app.use('/api/otp', otpRoutes); // No sirve
 //Gestion de Aplicaciones Routes
-app.use('/api/applications', applicationsRoutes);
+app.use('/api/applications', applicationsRoutes);// KardexDB ---> comision
 // app.use('/api/authApk', authApkRoutes);
 
 //Auth APK Routes
-app.use('/api/authApk', uploadRoutesS3);
+app.use('/api/authApk', uploadRoutesS3); // AuthAndSMS ---> LoginAPK
 
 // Gestion de OTP, sms
-app.use('/api/sms', smsRoutes);
+app.use('/api/sms', smsRoutes);   // AuthAndSMS ---> SMS
 
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/entryhour', HourEntryRoutes);
-app.use('/api/trakingoperaciones', TrakingOperacionesDeCasosRoutes);
-app.use('/api/multas', multaRoutes);
+app.use('/api/attendance', attendanceRoutes); // KardexDB ---> Asistencia
+app.use('/api/chat', chatRoutes);   // AuthAndSMS ---> chatSistemaAPK
+app.use('/api/entryhour', HourEntryRoutes); // KardexDB ---> comision
+app.use('/api/trakingoperaciones', TrakingOperacionesDeCasosRoutes);  // KardexDB ---> comision
+app.use('/api/multas', multaRoutes); // KardexDB ---> comision
 //Contador de clabes routes
-app.use('/api/clabes', clabesRoutes);
+app.use('/api/clabes', clabesRoutes); // CasesDB ---> distribuidor de casos RENOMBRAR
 
 //Newlatter Routes
-app.use('/api/newsletter', newslaterRoutes);
-app.use('/api/comision', comisionRoutes);
+app.use('/api/newsletter', newslaterRoutes); // KardexDB ---> comision
+app.use('/api/comision', comisionRoutes); // KardexDB ---> comision
 
 // app.use('/api/counter', counterRoutes);  
 
