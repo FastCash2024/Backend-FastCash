@@ -210,6 +210,9 @@ export const getApplications = async (userData) => {
       dni
     });
 
+    console.log("user loans: ", userLoans);
+    
+
     const applications = await Application.find();
 
     if (userLoans.length === 0) {
@@ -233,42 +236,62 @@ export const getApplications = async (userData) => {
       });
     }
 
-    // 🔹 Si hay algún crédito no pagado, TODAS las aplicaciones serán "No disponible"
-    const tieneCreditoNoPagado = userLoans.some(loan => loan.estadoDeCredito.trim().toLowerCase() !== "pagado");
-
     return applications.map(app => {
-      const nivelesOrdenados = app.niveles.sort((a, b) => parseFloat(a.nivelDePrestamo) - parseFloat(b.nivelDePrestamo));
+      const nivelesOrdenados = app.niveles
+        .sort((a, b) => parseInt(a.nivelDePrestamo) - parseInt(b.nivelDePrestamo));
 
       if (!nivelesOrdenados.length) return null;
 
-      // 🔹 Contar cuántos préstamos pagados tiene el usuario en esta app
+      // Verificar si hay un préstamo en esta aplicación diferente de "pagado"
+      const tieneCreditoNoPagadoEnEstaApp = userLoans.some(loan =>
+        loan.nombreDelProducto === app.nombre && loan.estadoDeCredito.trim().toLowerCase() !== "pagado"
+      );
+
+      // Contar cuántos préstamos pagados tiene el usuario en esta app
       const prestamosPagados = userLoans.filter(loan =>
         loan.estadoDeCredito.trim().toLowerCase() === "pagado" && loan.nombreDelProducto === app.nombre
       ).length;
 
-      console.log("📌 Prestamos Pagados:", prestamosPagados);
-      console.log("📌 Buscando nivel:", prestamosPagados + 1);
-      console.log("📌 Niveles Ordenados:", nivelesOrdenados.map(n => n.nivelDePrestamo));
+      // console.log("userLoans", userLoans);
+      // console.log("prestamosPagados", prestamosPagados);
 
-      const nivelCorrespondiente = nivelesOrdenados.find(n => Number(n.nivelDePrestamo) === prestamosPagados + 1);
+      // Nivel que le tocaría según los préstamos pagados
+      const nivelSiguiente = prestamosPagados + 1;
+      // console.log("nivelSiguiente", nivelSiguiente);
 
-      console.log("📌 Nivel Correspondiente encontrado:", nivelCorrespondiente);
+      // Verificar si el nivel siguiente existe en la aplicación
+      const nivelCorrespondiente = nivelesOrdenados.find(n => Number(n.nivelDePrestamo) === nivelSiguiente);
+      const existeNivel = nivelesOrdenados.some(n => Number(n.nivelDePrestamo) === nivelSiguiente);
 
+      // Si el usuario ya ha alcanzado el último nivel, devolver "Próximamente"
+      const maximoNivelDisponible = Math.max(...nivelesOrdenados.map(n => Number(n.nivelDePrestamo)));
+      // console.log("maximoNivelDisponible", maximoNivelDisponible);
+
+      
+      const estadoDeNivel = tieneCreditoNoPagadoEnEstaApp
+        ? "No disponible"
+        : nivelSiguiente > maximoNivelDisponible
+          ? "Próximamente"
+          : "Disponible";
 
       return {
         nombre: app.nombre,
         icon: app.icon,
         calificacion: app.calificacion,
-        prestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres,
-        interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.interesDiario,
+        prestamoMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.valorPrestadoMasInteres || 0,
+        interesDiarioMaximo: nivelesOrdenados[nivelesOrdenados.length - 1]?.interesDiario || 0,
         interesDiario: nivelCorrespondiente?.interesDiario || 0,
         interesTotal: nivelCorrespondiente?.interesTotal || 0,
         valorDepositoLiquido: nivelCorrespondiente?.valorDepositoLiquido || 0,
         valorExtencion: nivelCorrespondiente?.valorExtencion || 0,
         valorPrestado: nivelCorrespondiente?.valorPrestadoMasInteres || 0,
         valorPrestamoMenosInteres: nivelCorrespondiente?.valorPrestamoMenosInteres || 0,
-        estadoDeNivel: tieneCreditoNoPagado ? "No disponible" : (nivelCorrespondiente ? "Disponible" : "No disponible"),
-        nivelDePrestamo: tieneCreditoNoPagado ? 1 : (nivelCorrespondiente?.nivelDePrestamo || null)
+        estadoDeNivel,
+        nivelDePrestamo: tieneCreditoNoPagadoEnEstaApp
+          ? 1
+          : nivelSiguiente > maximoNivelDisponible
+            ? null
+            : nivelSiguiente
       };
     }).filter(app => app !== null);
 

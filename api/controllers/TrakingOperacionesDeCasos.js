@@ -42,6 +42,7 @@ export const getTrackings = async (req, res) => {
     const totalPages = Math.ceil(totalDocuments / limit);
 
     const records = await TrakingOperacionesDeCasos.find(filter)
+      .sort({ _id: -1 })
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit));
 
