@@ -732,6 +732,8 @@ export const getReporteCDiarioTotales = async (req, res) => {
     const { fecha, estadoDeCredito } = req.query;
     const today = fecha || moment().format('DD/MM/YYYY');
 
+    console.log('Fecha:', today);
+
     const filter = {
       $or: [
         {
