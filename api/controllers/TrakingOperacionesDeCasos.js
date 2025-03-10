@@ -2,15 +2,53 @@ import TrakingOperacionesDeCasos from '../models/TrakingOperacionesDeCasos.js';
 
 export const createTrackings = async (req, res) => {
   try {
-    const { acotacionesAuditor, ...data } = req.body; // Excluimos acotacionesAuditor
-    const newTracking = new TrakingOperacionesDeCasos(data);
+    const {
+      descripcionDeExcepcion,
+      cuentaOperadora,
+      cuentaPersonal,
+      codigoDeSistema,
+      codigoDeOperacion,
+      contenidoDeOperacion,
+      fechaDeOperacion,
+      subID // subID es opcional
+    } = req.body;
+
+    const requiredFields = [
+      'descripcionDeExcepcion',
+      'cuentaOperadora',
+      'cuentaPersonal',
+      'codigoDeSistema',
+      'codigoDeOperacion',
+      'contenidoDeOperacion',
+      'fechaDeOperacion'
+    ];
+
+    // Verificar que todos los campos obligatorios estén presentes
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: `Faltan campos obligatorios: ${missingFields.join(', ')}` });
+    }
+
+    // Crear el nuevo tracking con los datos validados
+    const newTracking = new TrakingOperacionesDeCasos({
+      descripcionDeExcepcion,
+      cuentaOperadora,
+      cuentaPersonal,
+      codigoDeSistema,
+      codigoDeOperacion,
+      contenidoDeOperacion,
+      fechaDeOperacion,
+      subID 
+    });
+
     await newTracking.save();
-    res.status(201).json({ message: "Registro creado sin acotacionesAuditor", data: newTracking });
+    res.status(201).json({ message: "Registro creado exitosamente", data: newTracking });
   } catch (error) {
-    console.error("Error al crear el tracking sin acotacionesAuditor:", error);
-    res.status(500).json({ message: "Error al crear el registro." });
+    console.error("Error al crear el tracking:", error);
+    res.status(500).json({ message: "Error al crear el registro.", details: error.message });
   }
 };
+
 
 export const createTracking = async (tracking) => {
   try {
