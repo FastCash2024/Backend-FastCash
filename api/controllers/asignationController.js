@@ -58,7 +58,7 @@ export const asignationCases = async (req, res) => {
             const updatedCases = credits.map(credit => ({ ...credit._doc })).map(caso => {
                 const assignedUser = updatedUsers.find(user => user.idCasosAsignados.includes(caso.numeroDePrestamo));
                 if (assignedUser) {
-                    return { ...caso, cuentaVerificador: assignedUser.cuenta, nombreDeLaEmpresa: assignedUser.origenDeLaCuenta, estadoDeCredito: nuevoEstadoDeCredito };
+                    return { ...caso, cuentaVerificador: assignedUser.cuenta, nombreDeLaEmpresa: assignedUser.origenDeLaCuenta, estadoDeCredito: nuevoEstadoDeCredito, fechaDeTramitacionDelCaso:assignedUser.fechaDeTramitacionDelCaso };
                 }
             }).filter(i => i !== null && i !== undefined);
 
